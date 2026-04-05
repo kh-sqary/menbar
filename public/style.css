@@ -3,8 +3,34 @@
    Complete Stylesheet
    ============================================ */
 @font-face {
-  font-family: theyeer;
-  src: url(TheYearofHandicrafts-Bold.otf);
+  font-family: 'theyeer';
+  src: url('fonts/TheYearofHandicrafts-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'theyeer';
+  src: url('fonts/TheYearofHandicrafts-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'theyeer';
+  src: url('fonts/TheYearofHandicrafts-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'theyeer';
+  src: url('fonts/TheYearofHandicrafts-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'theyeer';
+  src: url('fonts/TheYearofHandicrafts-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
 }
 
 /* ---------- CSS VARIABLES ---------- */
