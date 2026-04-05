@@ -1,0 +1,2003 @@
+/* ============================================
+   MINBAR – DA'WAH TRAINING PLATFORM
+   Main JavaScript File
+   ============================================ */
+
+// ============================================
+// PAGE NAVIGATION
+// ============================================
+
+/**
+ * Show a specific page by ID, hide all others
+ */
+function showPage(pageId) {
+  const pages = document.querySelectorAll(".page");
+  pages.forEach((page) => page.classList.remove("active"));
+
+  const target = document.getElementById(pageId);
+  if (target) {
+    target.classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // Trigger animations when dashboard is shown
+  if (pageId === "dashboard-page") {
+    setTimeout(() => {
+      animateKPIBars();
+      initScenarios();
+    }, 300);
+  }
+
+  // Trigger landing animations
+  if (pageId === "landing-page") {
+    animateCounters();
+    animateProgressBars();
+  }
+}
+
+// ============================================
+// SIDEBAR TOGGLE
+// ============================================
+
+let sidebarOpen = false;
+
+/**
+ * Toggle sidebar open/closed on mobile
+ */
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
+  sidebarOpen = !sidebarOpen;
+
+  if (sidebarOpen) {
+    sidebar.classList.add("open");
+    overlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+  } else {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+}
+
+/**
+ * Close sidebar on window resize if screen is large
+ */
+window.addEventListener("resize", () => {
+  if (window.innerWidth > 900 && sidebarOpen) {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    sidebar.classList.remove("open");
+    overlay.classList.remove("active");
+    document.body.style.overflow = "";
+    sidebarOpen = false;
+  }
+});
+
+// ============================================
+// DASHBOARD SECTION NAVIGATION
+// ============================================
+
+const pageTitles = {
+  overview: "لوحة التحكم",
+  training: "التدريب الصوتي",
+  simulation: "محاكاة السيناريوهات",
+  progress: "تقدمي",
+  achievements: "الإنجازات",
+};
+
+/**
+ * Show a dashboard sub-section
+ */
+function showDashboardSection(section, navElement) {
+  // Hide all sections
+  const sections = document.querySelectorAll(".dashboard-section");
+  sections.forEach((s) => s.classList.remove("active"));
+
+  // Remove active from all nav items
+  const navItems = document.querySelectorAll(".nav-item");
+  navItems.forEach((item) => item.classList.remove("active"));
+
+  // Show target section
+  const targetSection = document.getElementById(`${section}-section`);
+  if (targetSection) {
+    targetSection.classList.add("active");
+  }
+
+  // Set active nav item
+  if (navElement) {
+    navElement.classList.add("active");
+  }
+
+  // Update page title
+  const titleEl = document.getElementById("page-title");
+  if (titleEl && pageTitles[section]) {
+    titleEl.textContent = pageTitles[section];
+  }
+
+  // Close sidebar on mobile
+  if (window.innerWidth <= 900 && sidebarOpen) {
+    toggleSidebar();
+  }
+
+  // Trigger section-specific animations
+  if (section === "progress") {
+    setTimeout(animateKPIBars, 200);
+  }
+}
+
+// ============================================
+// MOBILE MENU TOGGLE
+// ============================================
+
+/**
+ * Toggle mobile navigation menu
+ */
+function toggleMobileMenu() {
+  const menu = document.getElementById("mobile-menu");
+  menu.classList.toggle("open");
+}
+
+// ============================================
+// COUNTER ANIMATIONS (Landing Page)
+// ============================================
+
+let countersAnimated = false;
+
+/**
+ * Animate number counters in the hero section
+ */
+function animateCounters() {
+  if (countersAnimated) return;
+  countersAnimated = true;
+
+  const counters = document.querySelectorAll(".stat-number[data-target]");
+
+  counters.forEach((counter) => {
+    const target = parseInt(counter.getAttribute("data-target"));
+    const duration = 2000;
+    const step = target / (duration / 16);
+    let current = 0;
+
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      counter.textContent = Math.floor(current).toLocaleString("ar");
+    }, 16);
+  });
+}
+
+// ============================================
+// PROGRESS BAR ANIMATIONS (Landing Page)
+// ============================================
+
+/**
+ * Animate progress bars in the about section
+ */
+function animateProgressBars() {
+  const bars = document.querySelectorAll(".progress-bar-fill");
+  bars.forEach((bar) => {
+    const target = bar.style.getPropertyValue("--target") || "0%";
+    setTimeout(() => {
+      bar.style.width = target;
+    }, 300);
+  });
+}
+
+/**
+ * Animate KPI bars in dashboard progress section
+ */
+function animateKPIBars() {
+  const bars = document.querySelectorAll(".kpi-bar");
+  bars.forEach((bar, i) => {
+    const width = bar.style.getPropertyValue("--kpi-width") || "0%";
+    setTimeout(() => {
+      bar.style.width = width;
+    }, i * 100);
+  });
+}
+
+// ============================================
+// RECORDING / TRAINING SECTION
+// ============================================
+
+let isRecording = false;
+let recordingTimer = null;
+let seconds = 0;
+let waveformInterval = null;
+
+/**
+ * Toggle recording state
+ */
+function toggleRecording() {
+  if (!isRecording) {
+    startRecording();
+  } else {
+    pauseRecording();
+  }
+}
+
+/**
+ * Start the recording simulation
+ */
+function startRecording() {
+  isRecording = true;
+
+  const circle = document.getElementById("recording-circle");
+  const pulse = document.getElementById("recording-pulse");
+  const icon = document.getElementById("recording-icon");
+  const label = document.getElementById("recording-label");
+  const toggleBtn = document.getElementById("rec-toggle-btn");
+  const stopBtn = document.getElementById("rec-stop-btn");
+
+  // Update UI state
+  circle.classList.add("recording");
+  pulse.classList.add("active");
+  icon.className = "fas fa-pause";
+  label.textContent = "جاري التسجيل...";
+  toggleBtn.innerHTML = '<i class="fas fa-pause"></i><span>إيقاف مؤقت</span>';
+  stopBtn.disabled = false;
+
+  // Start timer
+  recordingTimer = setInterval(() => {
+    seconds++;
+    const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const secs = String(seconds % 60).padStart(2, "0");
+    document.getElementById("recording-timer").textContent = `${mins}:${secs}`;
+  }, 1000);
+
+  // Start waveform animation
+  startWaveformAnimation();
+}
+
+/**
+ * Pause the recording
+ */
+function pauseRecording() {
+  isRecording = false;
+
+  const circle = document.getElementById("recording-circle");
+  const pulse = document.getElementById("recording-pulse");
+  const icon = document.getElementById("recording-icon");
+  const label = document.getElementById("recording-label");
+  const toggleBtn = document.getElementById("rec-toggle-btn");
+
+  circle.classList.remove("recording");
+  pulse.classList.remove("active");
+  icon.className = "fas fa-play";
+  label.textContent = "متابعة";
+  toggleBtn.innerHTML = '<i class="fas fa-play"></i><span>متابعة</span>';
+
+  clearInterval(recordingTimer);
+  stopWaveformAnimation();
+}
+
+/**
+ * Stop recording and show analysis
+ */
+function stopAndAnalyze() {
+  if (seconds < 1) {
+    showToast("يرجى التسجيل لمدة ثانية على الأقل");
+    return;
+  }
+
+  // Stop recording
+  isRecording = false;
+  clearInterval(recordingTimer);
+  stopWaveformAnimation();
+
+  const circle = document.getElementById("recording-circle");
+  const pulse = document.getElementById("recording-pulse");
+  const icon = document.getElementById("recording-icon");
+  const label = document.getElementById("recording-label");
+  const toggleBtn = document.getElementById("rec-toggle-btn");
+  const stopBtn = document.getElementById("rec-stop-btn");
+
+  circle.classList.remove("recording");
+  pulse.classList.remove("active");
+  icon.className = "fas fa-microphone";
+  label.textContent = "تم التسجيل";
+  toggleBtn.innerHTML = '<i class="fas fa-play"></i><span>تسجيل</span>';
+  stopBtn.disabled = true;
+
+  // Show analyzing state
+  showAnalysis();
+}
+
+/**
+ * Start waveform animation
+ */
+function startWaveformAnimation() {
+  const waveform = document.getElementById("waveform");
+  waveform.classList.add("animating");
+
+  const bars = waveform.querySelectorAll("span");
+
+  waveformInterval = setInterval(() => {
+    bars.forEach((bar) => {
+      const height = Math.floor(Math.random() * 56) + 8;
+      bar.style.height = `${height}px`;
+    });
+  }, 150);
+}
+
+/**
+ * Stop waveform animation
+ */
+function stopWaveformAnimation() {
+  const waveform = document.getElementById("waveform");
+  waveform.classList.remove("animating");
+
+  const bars = waveform.querySelectorAll("span");
+  bars.forEach((bar) => {
+    bar.style.height = "8px";
+  });
+
+  clearInterval(waveformInterval);
+}
+
+/**
+ * Show fake analysis results
+ */
+function showAnalysis() {
+  const badge = document.getElementById("analyzing-badge");
+  badge.style.display = "flex";
+
+  // Generate random scores
+  const speed = Math.floor(Math.random() * 30) + 60;
+  const clarity = Math.floor(Math.random() * 25) + 65;
+  const confidence = Math.floor(Math.random() * 30) + 55;
+  const overall = Math.floor((speed + clarity + confidence) / 3);
+
+  setTimeout(() => {
+    badge.style.display = "none";
+
+    // Update speed
+    animateMetric("speed", speed, getSpeedDesc(speed), getSpeedLabel(speed));
+
+    // Update clarity
+    setTimeout(() => {
+      animateMetric("clarity", clarity, getClarityDesc(clarity), getClarityLabel(clarity));
+    }, 200);
+
+    // Update confidence
+    setTimeout(() => {
+      animateMetric("confidence", confidence, getConfidenceDesc(confidence), getConfidenceLabel(confidence));
+    }, 400);
+
+    // Show overall score
+    setTimeout(() => {
+      showOverallScore(overall);
+      updateSessionCount();
+    }, 800);
+  }, 2000);
+}
+
+/**
+ * Animate a single metric bar and value
+ */
+function animateMetric(name, value, description, label) {
+  const bar = document.getElementById(`${name}-bar`);
+  const valueEl = document.getElementById(`${name}-value`);
+  const descEl = document.getElementById(`${name}-desc`);
+
+  bar.style.width = `${value}%`;
+  valueEl.textContent = `${value}% – ${label}`;
+  descEl.textContent = description;
+}
+
+/**
+ * Show the overall score card
+ */
+function showOverallScore(score) {
+  const scoreCard = document.getElementById("overall-score");
+  const scoreNumber = document.getElementById("score-number");
+  const scoreTitle = document.getElementById("score-title");
+  const scoreTip = document.getElementById("score-tip");
+
+  scoreCard.style.display = "flex";
+
+  // Animate number
+  let current = 0;
+  const step = score / 40;
+  const timer = setInterval(() => {
+    current += step;
+    if (current >= score) {
+      current = score;
+      clearInterval(timer);
+    }
+    scoreNumber.textContent = Math.floor(current);
+  }, 30);
+
+  // Set title and tip based on score
+  if (score >= 80) {
+    scoreTitle.textContent = "ممتاز! 🌟";
+    scoreTip.textContent = "أداؤك رائع، استمر في هذا المستوى المتميز!";
+  } else if (score >= 65) {
+    scoreTitle.textContent = "جيد جداً 👍";
+    scoreTip.textContent = "أنت في طريق صحيح، تدرّب أكثر لتحسين ثقتك بنفسك.";
+  } else {
+    scoreTitle.textContent = "يحتاج تحسين 💪";
+    scoreTip.textContent = "لا تستسلم! الممارسة المستمرة هي مفتاح النجاح.";
+  }
+}
+
+/**
+ * Update the sessions count in the dashboard
+ */
+function updateSessionCount() {
+  const el = document.getElementById("sessions-count");
+  if (el) {
+    const current = parseInt(el.textContent);
+    el.textContent = current + 1;
+    el.style.color = "#5FA8D3";
+    setTimeout(() => {
+      el.style.color = "";
+    }, 1000);
+    // Persist real progress
+    if (typeof saveProgressUpdate === 'function') {
+      saveProgressUpdate(1, null);
+    }
+  }
+}
+
+/**
+ * Reset recording to initial state
+ */
+function resetRecording() {
+  isRecording = false;
+  seconds = 0;
+
+  clearInterval(recordingTimer);
+  clearInterval(waveformInterval);
+  stopWaveformAnimation();
+
+  document.getElementById("recording-timer").textContent = "00:00";
+  document.getElementById("recording-circle").classList.remove("recording");
+  document.getElementById("recording-pulse").classList.remove("active");
+  document.getElementById("recording-icon").className = "fas fa-microphone";
+  document.getElementById("recording-label").textContent = "ابدأ التسجيل";
+  document.getElementById("rec-toggle-btn").innerHTML =
+    '<i class="fas fa-play"></i><span>تسجيل</span>';
+  document.getElementById("rec-stop-btn").disabled = true;
+  document.getElementById("analyzing-badge").style.display = "none";
+  document.getElementById("overall-score").style.display = "none";
+
+  // Reset bars
+  ["speed", "clarity", "confidence"].forEach((name) => {
+    document.getElementById(`${name}-bar`).style.width = "0%";
+    document.getElementById(`${name}-value`).textContent = "--";
+    document.getElementById(`${name}-desc`).textContent =
+      "سجّل صوتك لرؤية التحليل";
+  });
+}
+
+// Helper functions for metric descriptions
+function getSpeedLabel(v) {
+  if (v >= 80) return "سريع";
+  if (v >= 60) return "مناسب";
+  return "بطيء";
+}
+
+function getSpeedDesc(v) {
+  if (v >= 80) return "وتيرتك سريعة قليلاً، حاول التباطؤ لتوضيح أفكارك أكثر.";
+  if (v >= 60) return "وتيرتك مناسبة جداً، استمر!";
+  return "وتيرتك بطيئة بعض الشيء، جرب أن تكون أكثر تدفقاً.";
+}
+
+function getClarityLabel(v) {
+  if (v >= 80) return "واضح جداً";
+  if (v >= 60) return "واضح";
+  return "يحتاج تحسين";
+}
+
+function getClarityDesc(v) {
+  if (v >= 80) return "وضوح صوتك ممتاز، المستمعون يفهمون كلامك بسهولة.";
+  if (v >= 60) return "وضوحك جيد، تدرّب على مخارج الحروف أكثر.";
+  return "حاول التحدث بشكل أوضح وتمرّن على مخارج الحروف.";
+}
+
+function getConfidenceLabel(v) {
+  if (v >= 80) return "واثق جداً";
+  if (v >= 60) return "واثق";
+  return "يحتاج تعزيز";
+}
+
+function getConfidenceDesc(v) {
+  if (v >= 80) return "ثقتك بنفسك عالية جداً، هذا رائع للداعية!";
+  if (v >= 60) return "ثقتك جيدة، استمر في التدريب لتعزيزها أكثر.";
+  return "تدرّب أمام المرآة يومياً لتعزيز ثقتك بنفسك.";
+}
+
+// ============================================
+// SIMULATION / SCENARIOS
+// ============================================
+
+const scenarios = [
+  {
+    "category": "رد الشبهات",
+    "difficulty": "medium",
+    "text": "يسألك مسند: 'إذا كان الله رؤوفاً، فلماذا خلق الشر والأمراض؟'",
+    "choices": [
+      {
+        "text": "الشر ليس غاية بل ابتلاء، والدنيا دار اختبار لتظهر حكمة الله.",
+        "correct": true
+      },
+      {
+        "text": "هذا للردع والانتقام فقط.",
+        "correct": false
+      },
+      {
+        "text": "الشر غاية بحد ذاته.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "توضيح دقيق لحكمة الابتلاء.",
+      "wrong": "إجابة سطحية للأسف."
+    }
+  },
+  {
+    "category": "استشارات",
+    "difficulty": "easy",
+    "text": "شاب يفضل العزلة وترك الصلاة بالمسجد تجنباً لفتن المجتمع، كيف تنصحه؟",
+    "choices": [
+      {
+        "text": "المؤمن الذي يخالط الناس ويصبر على أذاهم خير من الذي لا يخالطهم.",
+        "correct": true
+      },
+      {
+        "text": "شجعه على العزلة لحفظ دينه.",
+        "correct": false
+      },
+      {
+        "text": "لا بأس طالما يصلي بالبيت.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "إشارة جيدة للهدى النبوي.",
+      "wrong": "العزلة المفرطة ليست من هدي النبي."
+    }
+  },
+  {
+    "category": "فقه المعاملات",
+    "difficulty": "hard",
+    "text": "تاجر يسأل عن حكم العملات المشفرة مع التذبذب العالي.",
+    "choices": [
+      {
+        "text": "يجب تحذيره من الغرر وربطه بقرارات المجامع الفقهية.",
+        "correct": true
+      },
+      {
+        "text": "مباحة لأنها تجارة رابحة.",
+        "correct": false
+      },
+      {
+        "text": "محرمة مطلقاً.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "التريث وربط الفتوى بأهل الاختصاص هو الأصوب.",
+      "wrong": "لا يجب التعميم بلا علم مرجعي."
+    }
+  },
+  {
+    "category": "منبر الجمعة",
+    "difficulty": "hard",
+    "text": "أثناء خطبة الجمعة، لاحظت أن بعض المصلين يشعرون بالنعاس.",
+    "choices": [
+      {
+        "text": "أقوم بتغيير نبرة صوتي واستخدام قصة قصيرة.",
+        "correct": true
+      },
+      {
+        "text": "أتوقف عن الخطبة وأوبخهم.",
+        "correct": false
+      },
+      {
+        "text": "أستمر بنفس الرتابة.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "أحسنت التنويع الصوتي.",
+      "wrong": "التوبيخ ينفّر."
+    }
+  },
+  {
+    "category": "الاستشارات العائلية",
+    "difficulty": "medium",
+    "text": "شاب يشتكي من قسوة والده المستمرة ويفكر في مقاطعته.",
+    "choices": [
+      {
+        "text": "أنصحه بالصبر والمصانعة بالمعروف.",
+        "correct": true
+      },
+      {
+        "text": "أشجعه على المقاطعة ليرتاح نفسياً.",
+        "correct": false
+      },
+      {
+        "text": "أقول له اصبر بدون توجيه عملي.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "توجيه حكيم.",
+      "wrong": "المقاطعة قطيعة رحم."
+    }
+  },
+  {
+    "category": "حوار الشباب",
+    "difficulty": "hard",
+    "text": "شاب يقول لك: أشعر أن الدين يقيّد حريتي.",
+    "choices": [
+      {
+        "text": "أحاوره بأن الحرية المطلقة وهم وأن الدين يحررنا من الشهوات.",
+        "correct": true
+      },
+      {
+        "text": "أخبره أنه إن لم يلتزم سيُعذب.",
+        "correct": false
+      },
+      {
+        "text": "أتفق معه.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "ربطت الحرية بالتحرر الداخلي.",
+      "wrong": "الترهيب المباشر ينفّر."
+    }
+  },
+  {
+    "category": "التوجيه الروحي",
+    "difficulty": "easy",
+    "text": "شخص يشكو من قسوة قلبه.",
+    "choices": [
+      {
+        "text": "أنصحه بالاستغفار ومجالسة الصالحين.",
+        "correct": true
+      },
+      {
+        "text": "أقول له هذا طبيعي.",
+        "correct": false
+      },
+      {
+        "text": "لا علاج لك.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "وصفة نبوية مجربة.",
+      "wrong": "التيئيس خطأ."
+    }
+  },
+  {
+    "category": "المواقف المحرجة",
+    "difficulty": "hard",
+    "text": "سألك أحدهم سؤالاً فقهياً ولا تعرف الإجابة.",
+    "choices": [
+      {
+        "text": "أقول ببساطة (لا أدري) وأبحث لاحقاً.",
+        "correct": true
+      },
+      {
+        "text": "أستنتج الإجابة من عقلي.",
+        "correct": false
+      },
+      {
+        "text": "أتهرب من السؤال.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "النصف من العلم لا أدري.",
+      "wrong": "الإفتاء بغير علم ذنب."
+    }
+  },
+  {
+    "category": "التاريخ الإسلامي",
+    "difficulty": "easy",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 9) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "أصول الدعوة",
+    "difficulty": "medium",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 10) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "حوار الأديان",
+    "difficulty": "hard",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 11) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "السيرة النبوية",
+    "difficulty": "easy",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 12) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "فقه العبادات",
+    "difficulty": "medium",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 13) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "تزكية النفوس",
+    "difficulty": "hard",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 14) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "التاريخ الإسلامي",
+    "difficulty": "easy",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 15) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "أصول الدعوة",
+    "difficulty": "medium",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 16) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "حوار الأديان",
+    "difficulty": "hard",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 17) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "السيرة النبوية",
+    "difficulty": "easy",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 18) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "فقه العبادات",
+    "difficulty": "medium",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 19) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "تزكية النفوس",
+    "difficulty": "hard",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 20) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "التاريخ الإسلامي",
+    "difficulty": "easy",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 21) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "أصول الدعوة",
+    "difficulty": "medium",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 22) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "حوار الأديان",
+    "difficulty": "hard",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 23) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  },
+  {
+    "category": "السيرة النبوية",
+    "difficulty": "easy",
+    "text": "يسألك أحدهم سؤالاً من واقع الحياة الشائكة والميدان (الموقف رقم 24) يتطلب حكمة وبصيرة في الرد.",
+    "choices": [
+      {
+        "text": "أجيب بحكمة ورويّة، مع تأصيل شرعي واضح.",
+        "correct": true
+      },
+      {
+        "text": "أتسرع في الإجابة بالمنع.",
+        "correct": false
+      },
+      {
+        "text": "أتجنب الإجابة وأخرج من المجلس.",
+        "correct": false
+      }
+    ],
+    "feedback": {
+      "correct": "تصرّف ناضج وموفق! هكذا يجب التعامل مع السائل.",
+      "wrong": "التسرع أو الهروب يضعف ثقة الناس."
+    }
+  }
+];
+
+let currentScenario = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let simScore = 0;
+let scenarioResults = [];
+
+/**
+ * Initialize the scenarios section
+ */
+function initScenarios() {
+  currentScenario = 0;
+  correctCount = 0;
+  wrongCount = 0;
+  simScore = 0;
+  scenarioResults = new Array(scenarios.length).fill(null);
+
+  updateScoreboard();
+  renderScenarioDots();
+  loadScenario(0);
+}
+
+/**
+ * Load a specific scenario
+ */
+function loadScenario(index) {
+  if (index >= scenarios.length) {
+    showSimulationComplete();
+    return;
+  }
+
+  const s = scenarios[index];
+
+  // Update scenario info
+  document.getElementById("scenario-category").textContent = s.category;
+  document.getElementById("scenario-counter").textContent = `سيناريو ${index + 1} من ${scenarios.length}`;
+
+  const diffEl = document.querySelector(".scenario-difficulty");
+  diffEl.className = `scenario-difficulty ${s.difficulty}`;
+  diffEl.textContent = s.difficulty === "easy" ? "سهل" : s.difficulty === "medium" ? "متوسط" : "صعب";
+
+  // Update scenario text with animation
+  const textEl = document.getElementById("scenario-text");
+  textEl.style.opacity = "0";
+  setTimeout(() => {
+    textEl.textContent = s.text;
+    textEl.style.opacity = "1";
+    textEl.style.transition = "opacity 0.4s ease";
+  }, 200);
+
+  // Hide result area
+  const resultArea = document.getElementById("result-area");
+  resultArea.style.display = "none";
+
+  // Render choices
+  const container = document.getElementById("choices-container");
+  container.style.opacity = "0";
+  container.innerHTML = "";
+
+  setTimeout(() => {
+    s.choices.forEach((choice, i) => {
+      const letters = ["أ", "ب", "ج", "د"];
+      const btn = document.createElement("button");
+      btn.className = "choice-btn";
+      btn.innerHTML = `
+        <span class="choice-letter">${letters[i]}</span>
+        ${choice.text}
+      `;
+      btn.onclick = () => selectChoice(i, choice.correct, s.feedback);
+      container.appendChild(btn);
+    });
+
+    container.style.opacity = "1";
+    container.style.transition = "opacity 0.4s ease";
+  }, 300);
+
+  // Update dots
+  renderScenarioDots();
+}
+
+/**
+ * Handle choice selection
+ */
+function selectChoice(choiceIndex, isCorrect, feedback) {
+  const container = document.getElementById("choices-container");
+  const buttons = container.querySelectorAll(".choice-btn");
+  const scenario = scenarios[currentScenario];
+
+  // Disable all buttons
+  buttons.forEach((btn) => (btn.disabled = true));
+
+  // Mark correct and wrong
+  buttons.forEach((btn, i) => {
+    if (scenario.choices[i].correct) {
+      btn.classList.add("correct");
+    } else if (i === choiceIndex && !isCorrect) {
+      btn.classList.add("wrong");
+    }
+  });
+
+  // Update scores
+  if (isCorrect) {
+    correctCount++;
+    simScore += 25;
+    scenarioResults[currentScenario] = "correct";
+  } else {
+    wrongCount++;
+    scenarioResults[currentScenario] = "wrong";
+  }
+
+  updateScoreboard();
+  renderScenarioDots();
+
+  // Show result after delay
+  setTimeout(() => {
+    showResult(isCorrect, feedback);
+  }, 800);
+}
+
+/**
+ * Show result card
+ */
+function showResult(isCorrect, feedback) {
+  const resultArea = document.getElementById("result-area");
+  const resultCard = document.getElementById("result-card");
+  const resultIcon = document.getElementById("result-icon");
+  const resultTitle = document.getElementById("result-title");
+  const resultMessage = document.getElementById("result-message");
+
+  resultCard.className = `result-card ${isCorrect ? "correct" : "wrong"}`;
+  resultIcon.textContent = isCorrect ? "✅" : "❌";
+  resultTitle.textContent = isCorrect ? "إجابة صحيحة! 🎉" : "إجابة خاطئة";
+  resultMessage.textContent = isCorrect ? feedback.correct : feedback.wrong;
+
+  resultArea.style.display = "block";
+
+  // Scroll to result
+  resultArea.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+/**
+ * Move to the next scenario
+ */
+function nextScenario() {
+  currentScenario++;
+  loadScenario(currentScenario);
+}
+
+/**
+ * Update scoreboard numbers
+ */
+function updateScoreboard() {
+  document.getElementById("correct-count").textContent = correctCount;
+  document.getElementById("wrong-count").textContent = wrongCount;
+  document.getElementById("sim-score").textContent = simScore;
+}
+
+/**
+ * Render scenario progress dots
+ */
+function renderScenarioDots() {
+  const container = document.getElementById("scenario-dots");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  scenarios.forEach((_, i) => {
+    const dot = document.createElement("div");
+    dot.className = "scenario-dot";
+
+    if (i === currentScenario) {
+      dot.classList.add("active");
+    } else if (scenarioResults[i] === "correct") {
+      dot.classList.add("done-correct");
+    } else if (scenarioResults[i] === "wrong") {
+      dot.classList.add("done-wrong");
+    }
+
+    dot.textContent = i + 1;
+    dot.onclick = () => {
+      if (scenarioResults[i] !== null || i <= currentScenario) {
+        // Allow navigation to already-answered scenarios
+        currentScenario = i;
+        loadScenario(i);
+      }
+    };
+
+    container.appendChild(dot);
+  });
+}
+
+/**
+ * Show simulation complete screen
+ */
+function showSimulationComplete() {
+  const panel = document.querySelector(".scenario-panel");
+
+  const percentage = Math.round((correctCount / scenarios.length) * 100);
+  let grade, emoji;
+
+  if (percentage >= 75) {
+    grade = "ممتاز! أنت داعية محترف 🌟";
+    emoji = "🏆";
+  } else if (percentage >= 50) {
+    grade = "جيد! استمر في التدريب 👍";
+    emoji = "📚";
+  } else {
+    grade = "تحتاج مزيداً من التدريب 💪";
+    emoji = "🎯";
+  }
+
+  panel.innerHTML = `
+    <div class="result-card correct" style="padding:40px;text-align:center;flex-direction:column;align-items:center;gap:16px;display:flex;background:linear-gradient(135deg,rgba(95,168,211,0.08),rgba(62,124,166,0.12));border:2px solid rgba(95,168,211,0.2);">
+      <div style="font-size:4rem">${emoji}</div>
+      <h3 style="font-size:1.4rem;font-weight:800;color:var(--dark)">أكملت جميع السيناريوهات!</h3>
+      <p style="font-size:1.1rem;color:var(--primary);font-weight:600">${grade}</p>
+      <div style="display:flex;gap:24px;margin:12px 0;">
+        <div style="text-align:center">
+          <div style="font-size:2rem;font-weight:800;color:#66BB6A">${correctCount}</div>
+          <div style="font-size:0.82rem;color:var(--text-light)">إجابة صحيحة</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:2rem;font-weight:800;color:#EF5350">${wrongCount}</div>
+          <div style="font-size:0.82rem;color:var(--text-light)">إجابة خاطئة</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:2rem;font-weight:800;color:var(--primary)">${simScore}</div>
+          <div style="font-size:0.82rem;color:var(--text-light)">نقطة</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="initScenarios()" style="margin-top:8px">
+        <i class="fas fa-redo"></i>
+        إعادة المحاولة
+      </button>
+    </div>
+  `;
+}
+
+// ============================================
+// CHATBOT
+// ============================================
+
+let chatbotIsOpen = false;
+
+/**
+ * Open the chatbot window
+ */
+function openChatbot() {
+  chatbotIsOpen = true;
+  document.getElementById("chatbot-window").classList.add("open");
+
+  // Hide notification badge
+  const badge = document.querySelector(".chatbot-badge");
+  if (badge) badge.style.display = "none";
+}
+
+/**
+ * Close the chatbot window
+ */
+function closeChatbot() {
+  chatbotIsOpen = false;
+  document.getElementById("chatbot-window").classList.remove("open");
+}
+
+/**
+ * Handle keyboard input in chatbot
+ */
+function handleChatInput(event) {
+  if (event.key === "Enter") {
+    sendChatMessage();
+  }
+}
+
+/**
+ * Send a message from quick reply buttons
+ */
+function sendQuickReply(text) {
+  const input = document.getElementById("chatbot-input");
+  input.value = text;
+  sendChatMessage();
+
+  // Remove quick replies after first use
+  const quickReplies = document.querySelector(".quick-replies");
+  if (quickReplies) quickReplies.remove();
+}
+
+/**
+ * Send a chat message
+ */
+async function sendChatMessage() {
+  const input = document.getElementById("chatbot-input");
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  // Add user message
+  addMessage(text, "user");
+  input.value = "";
+
+  // Show typing indicator
+  showTyping();
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+
+    const res = await fetch('http://localhost:3000/api/chat', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ message: text })
+    });
+    
+    if (!res.ok) throw new Error("API Error");
+    
+    const data = await res.json();
+    hideTyping();
+    addMessage(data.reply, "bot");
+  } catch (error) {
+    hideTyping();
+    addMessage("عذراً، حدث خطأ في الاتصال بالخادم. حاول لاحقاً.", "bot");
+  }
+}
+
+/**
+ * Add a message bubble to the chat
+ */
+function addMessage(text, sender) {
+  const messagesEl = document.getElementById("chatbot-messages");
+
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `message ${sender === "user" ? "user-message" : "bot-message"}`;
+
+  if (sender === "bot") {
+    msgDiv.innerHTML = `
+      <div class="message-avatar"><i class="fas fa-robot"></i></div>
+      <div class="message-bubble">
+        <p>${text}</p>
+        <span class="message-time">${time}</span>
+      </div>
+    `;
+  } else {
+    msgDiv.innerHTML = `
+      <div class="message-bubble">
+        <p>${text}</p>
+        <span class="message-time">${time}</span>
+      </div>
+      <div class="message-avatar" style="background:linear-gradient(135deg,#5FA8D3,#3E7CA6)">أ</div>
+    `;
+  }
+
+  messagesEl.appendChild(msgDiv);
+  scrollChatToBottom();
+}
+
+/**
+ * Show typing indicator
+ */
+function showTyping() {
+  const messagesEl = document.getElementById("chatbot-messages");
+  const typing = document.createElement("div");
+  typing.className = "typing-indicator";
+  typing.id = "typing-indicator";
+  typing.innerHTML = `
+    <div class="message-avatar"><i class="fas fa-robot"></i></div>
+    <div class="typing-dots">
+      <span></span><span></span><span></span>
+    </div>
+  `;
+  messagesEl.appendChild(typing);
+  scrollChatToBottom();
+}
+
+/**
+ * Hide typing indicator
+ */
+function hideTyping() {
+  const typing = document.getElementById("typing-indicator");
+  if (typing) typing.remove();
+}
+
+/**
+ * Scroll chat to the bottom
+ */
+function scrollChatToBottom() {
+  const messagesEl = document.getElementById("chatbot-messages");
+  setTimeout(() => {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }, 50);
+}
+
+/**
+ * Clear all chat messages
+ */
+function clearChat() {
+  const messagesEl = document.getElementById("chatbot-messages");
+  messagesEl.innerHTML = `
+    <div class="message bot-message">
+      <div class="message-avatar"><i class="fas fa-robot"></i></div>
+      <div class="message-bubble">
+        <p>تم مسح المحادثة. كيف يمكنني مساعدتك؟ 😊</p>
+        <span class="message-time">الآن</span>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Generate bot responses based on keywords
+ */
+function getBotResponse(userMessage) {
+  const msg = userMessage.toLowerCase();
+
+  // Greeting
+  if (msg.includes("سلام") || msg.includes("مرحبا") || msg.includes("هلا") || msg.includes("أهلا")) {
+    return "وعليكم السلام ورحمة الله! 😊 يسعدني مساعدتك في رحلتك التدريبية. ما الذي تودّ معرفته؟";
+  }
+
+  // Start training
+  if (msg.includes("ابدأ") || msg.includes("كيف أبدأ") || msg.includes("بداية") || msg.includes("أول")) {
+    return "للبدء في التدريب، انقر على 'التدريب الصوتي' في القائمة الجانبية. ستجد زر التسجيل الكبير 🎙️ اضغط عليه وابدأ بتسجيل خطابك، ثم ستحصل على تحليل فوري لأدائك!";
+  }
+
+  // Skill levels
+  if (msg.includes("مستوى") || msg.includes("مستويات") || msg.includes("درجة")) {
+    return "في منبر لدينا ثلاثة مستويات:\n\n🌱 مبتدئ: تتعلم أساسيات الخطابة\n📈 متوسط: تطور أسلوبك وثقتك\n🏆 متقدم: تتقن فنون الإقناع والتأثير\n\nيتم تحديد مستواك تلقائياً بناءً على أدائك في الجلسات.";
+  }
+
+  // Tips for speaking
+  if (msg.includes("نصائح") || msg.includes("خطابة") || msg.includes("تحسين")) {
+    return "إليك أهم نصائح الخطابة المؤثرة:\n\n🎯 ابدأ بقوة وجملة جاذبة\n🌬️ تنفس بعمق قبل البدء\n👁️ حافظ على تواصل بصري\n🎭 تنوع في نبرة صوتك\n⏱️ لا تتسرع، الوضوح أهم من السرعة\n💪 تدرّب يومياً لو 10 دقائق فقط!";
+  }
+
+  // Scenarios
+  if (msg.includes("سيناريو") || msg.includes("محاكاة") || msg.includes("شبهات")) {
+    return "رائع! السيناريوهات هي من أقوى أدوات التدريب 🧠 ستجدها في قسم 'محاكاة السيناريوهات'. تشمل مواقف الرد على الشبهات، الدعوة للأسرة، والحوار مع أصحاب الأفكار المختلفة.";
+  }
+
+  // Progress
+  if (msg.includes("تقدم") || msg.includes("إحصائيات") || msg.includes("نتائج")) {
+    return "يمكنك متابعة تقدمك التفصيلي في قسم 'تقدمي' 📊 ستجد فيه مؤشرات أدائك في الخطابة، الأسلوب، الثقة، ورد الشبهات، مع إحصائيات أسبوعية وأهداف شهرية.";
+  }
+
+  // Achievements
+  if (msg.includes("إنجاز") || msg.includes("جائزة") || msg.includes("شهادة")) {
+    return "الإنجازات محفزة جداً! 🏆 ستجد قسم 'الإنجازات' في القائمة. تشمل شارات للخطابة، حل السيناريوهات، والانتظام في التدريب. كلما تقدمت، كلما فتحت إنجازات جديدة!";
+  }
+
+  // Dawah topics
+  if (msg.includes("دعوة") || msg.includes("داعية") || msg.includes("دعاة")) {
+    return "الدعوة إلى الله شرف عظيم! 🌟 منصة منبر مصممة خصيصاً لتطوير مهاراتك الدعوية بأسلوب علمي ومنهجي. من أهم مهارات الداعية: الحكمة، وحسن الخلق، والعلم، والصبر.";
+  }
+
+  // Confidence
+  if (msg.includes("ثقة") || msg.includes("خوف") || msg.includes("رهبة") || msg.includes("قلق")) {
+    return "الخوف من الجمهور طبيعي جداً! 😊 للتغلب عليه:\n\n✅ تدرّب أمام المرآة يومياً\n✅ ابدأ بجمهور صغير من الأصدقاء\n✅ تنفس بعمق قبل البدء\n✅ ذكّر نفسك بالهدف النبيل\n✅ استخدم التسجيلات الصوتية للمراجعة";
+  }
+
+  // Help
+  if (msg.includes("مساعدة") || msg.includes("مساعد") || msg.includes("ساعد")) {
+    return "بكل سرور! 💙 أنا هنا لمساعدتك في أي استفسار عن:\n\n🎙️ التدريب الصوتي\n🧠 السيناريوهات التدريبية\n📊 متابعة التقدم\n🏆 الإنجازات والشهادات\n💡 نصائح الدعوة والخطابة\n\nاسألني عن أي موضوع!";
+  }
+
+  // Quran / hadith
+  if (msg.includes("قرآن") || msg.includes("حديث") || msg.includes("آية")) {
+    return 'قال الله تعالى: ﴿ادْعُ إِلَىٰ سَبِيلِ رَبِّكَ بِالْحِكْمَةِ وَالْمَوْعِظَةِ الْحَسَنَةِ﴾ [النحل: 125]\n\nهذه الآية هي دستور الداعية! الحكمة في الأسلوب، والموعظة الحسنة في المحتوى، والجدال بالتي هي أحسن في النقاش.';
+  }
+
+  // Default responses
+  const defaults = [
+    "شكراً على سؤالك! للحصول على مساعدة أكثر تخصصاً، يمكنك تصفح أقسام المنصة المختلفة. هل تريد أن أساعدك في شيء محدد؟ 😊",
+    "سؤال رائع! 🌟 أنا هنا لمساعدتك في رحلتك الدعوية. هل تريد نصائح عن الخطابة أو التدريب الصوتي؟",
+    "أفهم ما تقصده! 💡 المنصة تحتوي على موارد كثيرة تساعدك. تصفح الأقسام المختلفة أو اسألني عن موضوع محدد.",
+    "جيد! دعني أساعدك. يمكنني تزويدك بمعلومات عن التدريب، السيناريوهات، أو نصائح الدعوة. ما الذي يهمك أكثر؟",
+  ];
+
+  return defaults[Math.floor(Math.random() * defaults.length)];
+}
+
+// ============================================
+// AUTH MODAL & BACKEND LOGIC
+// ============================================
+
+let currentAuthMode = 'login';
+
+function openAuthModal(mode) {
+  currentAuthMode = mode;
+  document.getElementById("auth-title").textContent = mode === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب جديد';
+  document.getElementById("auth-submit-btn").textContent = mode === 'login' ? 'دخول' : 'تسجيل';
+  document.querySelector(".auth-switch").innerHTML = mode === 'login' 
+    ? 'ليس لديك حساب؟ <a href="#" onclick="toggleAuthMode()">سجل الآن</a>'
+    : 'لديك حساب بالفعل؟ <a href="#" onclick="toggleAuthMode()">تسجيل الدخول</a>';
+  
+  const modal = document.getElementById("auth-modal");
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+  document.getElementById("auth-error").style.display = "none";
+}
+
+function closeAuthModal() {
+  const modal = document.getElementById("auth-modal");
+  modal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+function toggleAuthMode() {
+  openAuthModal(currentAuthMode === 'login' ? 'register' : 'login');
+}
+
+async function handleAuthSubmit(e) {
+  e.preventDefault();
+  const username = document.getElementById("auth-username").value;
+  const password = document.getElementById("auth-password").value;
+  const errorEl = document.getElementById("auth-error");
+  
+  try {
+    const res = await fetch(`http://localhost:3000/api/auth/${currentAuthMode}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    
+    if (res.ok) {
+      localStorage.setItem('minbar_token', data.token);
+      localStorage.setItem('minbar_user', data.username);
+      closeAuthModal();
+      showToast("تم " + (currentAuthMode === 'login' ? "تسجيل الدخول" : "الاشتراك") + " بنجاح!", "success");
+      loadUserProgress();
+      showPage('dashboard-page');
+    } else {
+      errorEl.textContent = data.error || 'حدث خطأ';
+      errorEl.style.display = "block";
+    }
+  } catch (err) {
+    errorEl.textContent = 'تعذر الاتصال بالخادم';
+    errorEl.style.display = "block";
+  }
+}
+
+async function loadUserProgress() {
+  try {
+    const res = await fetch('http://localhost:3000/api/user/progress');
+    if (res.ok) {
+      const data = await res.json();
+      if(document.getElementById("sessions-count")) document.getElementById("sessions-count").textContent = data.sessions_count || 0;
+      
+      const userLevel = data.level || 'مبتدئ';
+      document.querySelectorAll(".user-level").forEach(el => el.innerHTML = `<i class="fas fa-star"></i> داعية ${userLevel}`);
+      document.querySelectorAll(".user-name").forEach(el => el.textContent = data.name);
+    }
+  } catch (err) {
+    console.error("Failed to load progress", err);
+  }
+}
+
+async function saveProgressUpdate(sessionCountIncr, kpiUpdate) {
+  try {
+    const currentRes = await fetch('http://localhost:3000/api/user/progress');
+    if (!currentRes.ok) return;
+    const currentData = await currentRes.json();
+    
+    await fetch('http://localhost:3000/api/user/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessions_count: (currentData.sessions_count || 0) + (sessionCountIncr || 0),
+        kpi_score: kpiUpdate || currentData.kpi_score
+      })
+    });
+  } catch (err) {
+    console.error("Failed to save progress", err);
+  }
+}
+
+// ============================================
+// LIBRARY SECTION LOGIC
+// ============================================
+let libraryData = [];
+
+async function loadLibraryCategory(category) {
+  document.querySelectorAll('.lib-tab').forEach(tab => tab.classList.remove('active'));
+  if (event && event.target) event.target.classList.add('active');
+  
+  const container = document.getElementById('library-container');
+  const loader = document.getElementById('library-loading');
+  if (!container || !loader) return;
+  
+  container.innerHTML = '';
+  loader.style.display = 'block';
+  libraryData = [];
+  
+  try {
+    if (category === 'quran') {
+      const res = await fetch('https://api.alquran.cloud/v1/page/1/ar.asad');
+      const data = await res.json();
+      libraryData = data.data.ayahs.map(ayah => ({
+        id: ayah.number,
+        title: `سورة ${ayah.surah.name}`,
+        content: ayah.text,
+        badge: 'آية قرآنية',
+        icon: 'book-open'
+      }));
+    } else if (category === 'hadith') {
+      const res = await fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-bukhari.json');
+      const data = await res.json();
+      libraryData = data.hadiths.slice(50, 60).map(h => ({
+        id: h.hadithnumber,
+        title: `صحيح البخاري - حديث ${h.hadithnumber}`,
+        content: h.text,
+        badge: 'حديث شريف',
+        icon: 'mosque'
+      }));
+    } else {
+      libraryData = [
+        { id: 1, title: 'الرد على دعوى تعارض العلم مع الدين', content: 'العلم والدين وجهان لعملة واحدة، العلم يدرس "كيف" يعمل الكون، والدين يجيب عن "لماذا" وجد الكون...', badge: 'مقال دعوي', icon: 'pen' },
+        { id: 2, title: 'كيف تحاور غير المسلم بحكمة؟', content: 'الخطوة الأولى هي الاستماع ثم تحديد المشتركات، كما أمرنا الله "موعظة حسنة" و"جادلهم بالتي هي أحسن"...', badge: 'نصائح', icon: 'users' },
+        { id: 3, title: 'شبهة تعدد الزوجات والرد عليها', content: 'إن التعدد شرع بنطاق ضيق وشروط صارمة لحل مشكلات اجتماعية وإنسانية في المقام الأول...', badge: 'شبهات', icon: 'shield-alt' }
+      ];
+    }
+  } catch (err) {
+    console.error("Library fetch error", err);
+    libraryData = [{ id: 0, title: 'خطأ', content: 'عذراً، حدث خطأ أثناء جلب البيانات.', badge: 'خطأ', icon: 'exclamation-circle' }];
+  }
+  
+  loader.style.display = 'none';
+  renderLibraryData(libraryData);
+}
+
+function renderLibraryData(items) {
+  const container = document.getElementById('library-container');
+  if (!container) return;
+  container.innerHTML = '';
+  items.forEach(item => {
+    const safeContent = encodeURIComponent(item.content);
+    container.innerHTML += `
+      <div class="library-card">
+        <div class="library-card-header">
+          <span class="lib-badge"><i class="fas fa-${item.icon}"></i> ${item.badge}</span>
+        </div>
+        <h3 style="font-size: 1.1rem; color: var(--dark); margin: 0;">${item.title}</h3>
+        <div class="lib-content">${item.content.length > 200 ? item.content.substring(0, 200) + '...' : item.content}</div>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button class="lib-action" style="flex:1;">اقرأ المزيد <i class="fas fa-arrow-left"></i></button>
+          <button class="btn-primary" style="flex:1.2; font-size:0.85rem; padding:8px;" onclick="sendToEditor('${item.badge}', decodeURIComponent('${safeContent}'))"><i class="fas fa-plus"></i> إدراج كمسودة</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+window.sendToEditor = function(type, text) {
+  let storageKey = 'pending_poetry'; 
+  if(type === 'آية قرآنية') storageKey = 'pending_quran';
+  if(type === 'حديث شريف') storageKey = 'pending_hadith';
+  
+  localStorage.setItem(storageKey, text);
+  if(typeof showToast === 'function') {
+    showToast('تمت الإضافة للمسودة! افتح محرر الخطب لإدراجها', 'success');
+  } else {
+    alert('تمت الإضافة للمسودة!');
+  }
+}
+
+function filterLibraryResults() {
+  const query = document.getElementById('lib-search-input').value.toLowerCase();
+  const filtered = libraryData.filter(item => item.title.toLowerCase().includes(query) || item.content.toLowerCase().includes(query));
+  renderLibraryData(filtered);
+}
+
+// ============================================
+// DEMO MODAL
+// ============================================
+
+/**
+ * Show the demo video modal
+ */
+function showDemoVideo() {
+  const modal = document.getElementById("demo-modal");
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+/**
+ * Close the demo modal
+ */
+function closeDemoModal() {
+  const modal = document.getElementById("demo-modal");
+  modal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+// ============================================
+// SCROLL UTILITIES
+// ============================================
+
+/**
+ * Scroll to a section on the landing page
+ */
+function scrollToSection(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (el) {
+    const offset = 80;
+    const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({ top, behavior: "smooth" });
+  }
+}
+
+// ============================================
+// INTERSECTION OBSERVER (For animations)
+// ============================================
+
+/**
+ * Observe elements for scroll-triggered animations
+ */
+function initScrollAnimations() {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = "1";
+          entry.target.style.transform = "translateY(0)";
+
+          // Trigger counter animation when hero stats are visible
+          if (entry.target.classList.contains("hero-stats")) {
+            animateCounters();
+          }
+
+          // Trigger progress bars when about section is visible
+          if (entry.target.classList.contains("progress-showcase")) {
+            animateProgressBars();
+          }
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
+
+  // Observe feature cards
+  document.querySelectorAll(".feature-card").forEach((card, i) => {
+    card.style.opacity = "0";
+    card.style.transform = "translateY(30px)";
+    card.style.transition = `opacity 0.6s ease ${i * 0.1}s, transform 0.6s ease ${i * 0.1}s`;
+    observer.observe(card);
+  });
+
+  // Observe hero stats
+  const heroStats = document.querySelector(".hero-stats");
+  if (heroStats) observer.observe(heroStats);
+
+  // Observe progress showcase
+  const showcase = document.querySelector(".progress-showcase");
+  if (showcase) observer.observe(showcase);
+
+  // Observe about list items
+  document.querySelectorAll(".about-list li").forEach((item, i) => {
+    item.style.opacity = "0";
+    item.style.transform = "translateX(20px)";
+    item.style.transition = `opacity 0.5s ease ${i * 0.15}s, transform 0.5s ease ${i * 0.15}s`;
+    observer.observe(item);
+  });
+}
+
+// ============================================
+// TOAST NOTIFICATION
+// ============================================
+
+/**
+ * Show a toast notification
+ */
+function showToast(message, type = "info") {
+  const existing = document.querySelector(".toast");
+  if (existing) existing.remove();
+
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: ${type === "error" ? "#EF5350" : type === "success" ? "#66BB6A" : "#1F3C5A"};
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    font-family: 'Tajawal', sans-serif;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    animation: slideInToast 0.4s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 300px;
+    direction: rtl;
+  `;
+
+  const icons = { error: "fa-times-circle", success: "fa-check-circle", info: "fa-info-circle" };
+  toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i> ${message}`;
+
+  // Add animation style
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes slideInToast {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(16px)";
+    toast.style.transition = "all 0.4s ease";
+    setTimeout(() => toast.remove(), 400);
+  }, 3000);
+}
+
+// ============================================
+// FAKE DATA UPDATES
+// ============================================
+
+/**
+ * Simulate live data updates for demo purposes
+ */
+function startFakeDataUpdates() {
+  // Randomly update session count
+  setInterval(() => {
+    const el = document.getElementById("sessions-count");
+    if (el && document.getElementById("dashboard-page").classList.contains("active")) {
+      const current = parseInt(el.textContent);
+      if (Math.random() > 0.95) {
+        el.textContent = current + 1;
+        showToast("جلسة تدريب جديدة مكتملة! 🎉", "success");
+      }
+    }
+  }, 15000);
+}
+
+// ============================================
+// KEYBOARD SHORTCUTS
+// ============================================
+
+/**
+ * Handle global keyboard shortcuts
+ */
+document.addEventListener("keydown", (e) => {
+  // Escape key
+  if (e.key === "Escape") {
+    closeDemoModal();
+    if (chatbotIsOpen) closeChatbot();
+    if (sidebarOpen) toggleSidebar();
+  }
+});
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+/**
+ * Initialize everything when DOM is ready
+ */
+document.addEventListener("DOMContentLoaded", () => {
+  // Always start at landing page when entering site directly
+  showPage("landing-page");
+  loadUserProgress();
+
+  // Start scroll animations
+  initScrollAnimations();
+
+  // Animate counters
+  animateCounters();
+
+  // Start fake data updates
+  startFakeDataUpdates();
+
+  // Initialize scenarios data for sidebar dots
+  scenarioResults = new Array(scenarios.length).fill(null);
+
+  // Add smooth hover effects to nav items
+  document.querySelectorAll(".nav-item").forEach((item) => {
+    item.addEventListener("mouseenter", function () {
+      this.style.paddingRight = "20px";
+    });
+    item.addEventListener("mouseleave", function () {
+      this.style.paddingRight = "";
+    });
+  });
+
+  // Newsletter form
+  const newsletterBtn = document.querySelector(".newsletter-input button");
+  if (newsletterBtn) {
+    newsletterBtn.addEventListener("click", () => {
+      const input = document.querySelector(".newsletter-input input");
+      if (input && input.value) {
+        showToast("شكراً! تم اشتراكك في النشرة البريدية ✅", "success");
+        input.value = "";
+      } else {
+        showToast("يرجى إدخال بريدك الإلكتروني", "error");
+      }
+    });
+  }
+
+  console.log("🕌 Minbar Platform initialized successfully!");
+  console.log("📚 Use showPage('dashboard-page') to navigate to dashboard");
+  console.log("🤖 Chatbot is ready at bottom-left corner");
+});
+
+// Dropdown toggle logic
+function toggleDropdown(event, id) {
+  event.stopPropagation();
+  const menu = document.getElementById(id);
+  const isVisible = menu.style.display === 'block';
+  
+  // Close all other dropdowns
+  document.querySelectorAll('.dropdown-menu').forEach(el => el.style.display = 'none');
+  
+  if (!isVisible && menu) {
+    menu.style.display = 'block';
+  }
+}
+
+// Close dropdowns if clicked outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dropdown-wrapper')) {
+    document.querySelectorAll('.dropdown-menu').forEach(el => el.style.display = 'none');
+  }
+});

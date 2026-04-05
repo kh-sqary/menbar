@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>استعراض الخطبة - منبر</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      background: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: 'Tajawal', sans-serif;
+    }
+    .topbar {
+      position: relative;
+      width: 100%;
+      box-shadow: var(--shadow-sm);
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 15px 30px;
+    }
+    .document-wrapper {
+      flex: 1;
+      padding: 40px;
+      max-width: 900px;
+      width: 100%;
+      margin: 20px auto;
+      background: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    
+    .khutbah-title {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 15px;
+    }
+    
+    .khutbah-section {
+      margin-bottom: 30px;
+    }
+    
+    .khutbah-section-title {
+      font-size: 1.3rem;
+      color: var(--secondary);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+    
+    .khutbah-text {
+      font-family: 'Amiri', serif;
+      font-size: 1.4rem;
+      line-height: 2.2;
+      color: #333;
+      text-align: justify;
+      white-space: pre-wrap;
+    }
+    
+    .evidence-box {
+      background: #fdfdfd;
+      border-right: 4px solid var(--primary);
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+    
+    .evidence-type {
+      font-family: 'Tajawal', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+    
+    .evidence-content {
+      font-family: 'Amiri', serif;
+      font-size: 1.35rem;
+      color: #222;
+      line-height: 1.9;
+      white-space: pre-wrap;
+    }
+    
+    @media print {
+      body { background: white; }
+      .topbar { display: none !important; }
+      .document-wrapper {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+      }
+      .khutbah-title { font-size: 2rem; color: #000; }
+      .khutbah-section-title { color: #000; }
+      .evidence-box { border-color: #555; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="nav-logo">
+      <i class="fas fa-microphone-alt"></i>
+      <span>منبر - استعراض الخطبة</span>
+    </div>
+    <div class="topbar-left" style="display:flex; gap:10px;">
+      <button class="btn-primary" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+      <button class="btn-outline" onclick="window.location.href='editor.html'"><i class="fas fa-pen"></i> تعديل</button>
+    </div>
+  </div>
+
+  <div class="document-wrapper" id="khutbah-document">
+    <h1 class="khutbah-title" id="view-title">عنوان الخطبة</h1>
+    
+    <div class="khutbah-section">
+      <div class="khutbah-section-title"><i class="fas fa-quote-right"></i> المقدمة</div>
+      <div class="khutbah-text" id="view-intro">لا توجد مقدمة.</div>
+    </div>
+    
+    <!-- Evidences Integration midway (optional logic) or grouped together -->
+    <div class="khutbah-section" id="evidences-container" style="display:none;">
+      <div class="khutbah-section-title"><i class="fas fa-book-open"></i> الأدلة والاستشهادات</div>
+      
+      <div id="quran-wrapper" style="display:none;" class="evidence-box">
+        <div class="evidence-type"><i class="fas fa-quran"></i> القرآن الكريم</div>
+        <div class="evidence-content" id="view-quran"></div>
+      </div>
+      
+      <div id="hadith-wrapper" style="display:none;" class="evidence-box">
+        <div class="evidence-type"><i class="fas fa-book"></i> الأحاديث النبوية</div>
+        <div class="evidence-content" id="view-hadith"></div>
+      </div>
+      
+      <div id="poetry-wrapper" style="display:none;" class="evidence-box">
+        <div class="evidence-type"><i class="fas fa-pen-nib"></i> الشعر والحكم</div>
+        <div class="evidence-content" id="view-poetry"></div>
+      </div>
+    </div>
+
+    <div class="khutbah-section">
+      <div class="khutbah-section-title"><i class="fas fa-align-justify"></i> صلب الموضوع</div>
+      <div class="khutbah-text" id="view-body">لا يوجد محتوى.</div>
+    </div>
+    
+    <div class="khutbah-section">
+      <div class="khutbah-section-title"><i class="fas fa-pray"></i> الخاتمة والدعاء</div>
+      <div class="khutbah-text" id="view-conclusion">لا توجد خاتمة.</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const dataStr = localStorage.getItem('current_khutbah');
+      if (dataStr) {
+        try {
+          const data = JSON.parse(dataStr);
+          document.getElementById('view-title').textContent = data.title || "بدون عنوان";
+          document.getElementById('view-intro').textContent = data.intro || "لا توجد مقدمة مكتوبة.";
+          document.getElementById('view-body').textContent = data.body || "لا يوجد صلب للموضوع.";
+          document.getElementById('view-conclusion').textContent = data.conclusion || "لا توجد خاتمة.";
+          
+          let hasEvidence = false;
+          
+          if (data.quran) {
+            document.getElementById('quran-wrapper').style.display = 'block';
+            document.getElementById('view-quran').textContent = data.quran;
+            hasEvidence = true;
+          }
+          if (data.hadith) {
+            document.getElementById('hadith-wrapper').style.display = 'block';
+            document.getElementById('view-hadith').textContent = data.hadith;
+            hasEvidence = true;
+          }
+          if (data.poetry) {
+            document.getElementById('poetry-wrapper').style.display = 'block';
+            document.getElementById('view-poetry').textContent = data.poetry;
+            hasEvidence = true;
+          }
+          
+          if (hasEvidence) {
+            document.getElementById('evidences-container').style.display = 'block';
+          }
+          
+        } catch(e) {
+          console.error("Failed to parse khutbah data");
+        }
+      } else {
+        document.getElementById('view-title').textContent = "لم يتم العثور على خطبة محفوظة";
+      }
+    });
+  </script>
+</body>
+</html>

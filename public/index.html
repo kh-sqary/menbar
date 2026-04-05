@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>منبر – منصة تدريب الدعاة</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+
+  <!-- ========== LANDING PAGE ========== -->
+  <div id="landing-page" class="page active">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <i class="fas fa-microphone-alt"></i>
+          <span>منبر</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="#" onclick="scrollToSection('features')">المميزات</a></li>
+          <li><a href="#" onclick="scrollToSection('about')">عن المنصة</a></li>
+          <li><a href="#" onclick="scrollToSection('contact')">تواصل معنا</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="btn-primary" onclick="showPage('dashboard-page')">لوحة التحكم</button>
+        </div>
+        <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      <div class="mobile-menu" id="mobile-menu">
+        <a href="#">المميزات</a>
+        <a href="#">عن المنصة</a>
+        <a href="#">تواصل معنا</a>
+        <button class="btn-primary" onclick="showPage('dashboard-page')">ابدأ الآن</button>
+      </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="hero-bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-badge">
+          <i class="fas fa-star"></i>
+          <span>منصة تدريب الدعاة الأولى</span>
+        </div>
+        <h1 class="hero-title">تدرّب… وكن داعية <span class="highlight">مؤثر</span></h1>
+        <p class="hero-subtitle">
+          طوّر مهاراتك في الخطابة والدعوة من خلال تدريب ذكي، تحليل صوتي، وسيناريوهات تفاعلية مصممة لتجعلك داعية متميزاً.
+        </p>
+        <div class="hero-buttons">
+          <button class="btn-primary btn-large" onclick="showPage('dashboard-page')">
+            <i class="fas fa-play"></i>
+            ابدأ الآن
+          </button>
+          <button class="btn-ghost btn-large" onclick="showDemoVideo()">
+            <i class="fas fa-circle-play"></i>
+            شاهد كيف يعمل
+          </button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number" data-target="1200">0</span>
+            <span class="stat-label">داعية مسجّل</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-number" data-target="350">0</span>
+            <span class="stat-label">جلسة تدريبية</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-number" data-target="98">0</span>
+            <span class="stat-label">% رضا المستخدمين</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card floating" style="padding: 25px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+          <div style="font-size: 3.5rem; color: var(--primary); margin-bottom: 15px;">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <h3 style="font-family: 'Tajawal', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--dark); margin-bottom: 10px;">إحصائيات المنصة</h3>
+          <p style="color: var(--text); font-size: 0.95rem; line-height: 1.6;">تم تدريب أكثر من 10,000 إمام وخطيب باستخدام خوارزميات الذكاء الاصطناعي مع تحسن في الأداء بنسبة تفوق الـ 85%.</p>
+        </div>
+        <div class="floating-badge fb-1">
+          <i class="fas fa-chart-line"></i>
+          <span>+15% تحسن هذا الأسبوع</span>
+        </div>
+        <div class="floating-badge fb-2">
+          <i class="fas fa-trophy"></i>
+          <span>إنجاز جديد!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features" id="features">
+      <div class="section-header">
+        <span class="section-tag">بوابتك للتميز</span>
+        <h2>أدوات تدريبية فائقة الذكاء</h2>
+        <p>نضع بين يديك منظومة متكاملة لترتقي بمهاراتك الدعوية والخطابية بأسلوب عصري محكم</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon" style="background: linear-gradient(135deg, #5FA8D3, #3E7CA6)">
+            <i class="fas fa-microphone"></i>
+          </div>
+          <h3>تحليل الموجات الصوتية</h3>
+          <p>اكتشف ذروة أدائك الصوتي من خلال تحليل فوري لنبرة الصوت وإيقاع الإلقاء ووضوح الوقفات.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: linear-gradient(135deg, #7B68EE, #5A4FCF)">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3>محاكاة السيناريوهات</h3>
+          <p>تدرب على مواجهة الجماهير في بيئة تفاعلية تحاكي أبرز التحديات الميدانية للداعية المتمرس.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: linear-gradient(135deg, #48D1CC, #20B2AA)">
+            <i class="fas fa-robot"></i>
+          </div>
+          <h3>مساعد الذكاء الاصطناعي</h3>
+          <p>روبوت حواري متقدم يقترح عليك الأدلة، ينقح أفكارك، ويجيب على الشبهات في ثوانٍ معدودة.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: linear-gradient(135deg, #FF8C69, #FF6347)">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <h3>رصد وتحليل التقدم</h3>
+          <p>إحصائيات مرئية لتتبع تقدمك المنهجي خطوة بخطوة نحو الاحترافية والمكانة المتميزة.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: linear-gradient(135deg, #98D8C8, #66BB6A)">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3>مجتمع النخبة</h3>
+          <p>تواصل مع كوكبة من الدعاة لتبادل الخبرات والخطب الناجحة ضمن بيئة تشاركية راقية.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background: linear-gradient(135deg, #FFD700, #FFA500)">
+            <i class="fas fa-certificate"></i>
+          </div>
+          <h3>اعتمادات وتزكيات</h3>
+          <p>أتمم برامجنا التدريبية واحصد شهادات معتمدة توثق ارتقاء قدراتك في الدعوة والإرشاد.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section class="about" id="about">
+      <div class="about-content">
+        <div class="about-text">
+          <span class="section-tag">عن منبر</span>
+          <h2>منصة مصممة للداعية الحديث</h2>
+          <p>منبر هي منصة تدريبية متكاملة تجمع بين التقنية الحديثة والمنهج الدعوي الأصيل، لتساعدك على تطوير مهاراتك
+            الخطابية والدعوية بشكل علمي ومنهجي.</p>
+          <ul class="about-list">
+            <li><i class="fas fa-check-circle"></i> برامج تدريبية مصممة من قِبل خبراء</li>
+            <li><i class="fas fa-check-circle"></i> تحليل صوتي بتقنية الذكاء الاصطناعي</li>
+            <li><i class="fas fa-check-circle"></i> تدريب مرن يناسب جدولك</li>
+            <li><i class="fas fa-check-circle"></i> دعم مستمر من المدربين المتخصصين</li>
+          </ul>
+          <button class="btn-primary" onclick="showPage('dashboard-page')">انضم إلينا الآن</button>
+        </div>
+        <div class="about-visual">
+          <div class="progress-showcase">
+            <h4>تقدمك الأسبوعي</h4>
+            <div class="progress-item">
+              <span>الخطابة</span>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill animate-bar" style="--target: 85%"></div>
+              </div>
+              <span>85%</span>
+            </div>
+            <div class="progress-item">
+              <span>الأسلوب</span>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill animate-bar" style="--target: 72%"></div>
+              </div>
+              <span>72%</span>
+            </div>
+            <div class="progress-item">
+              <span>التفاعل</span>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill animate-bar" style="--target: 91%"></div>
+              </div>
+              <span>91%</span>
+            </div>
+            <div class="progress-item">
+              <span>الثقة</span>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill animate-bar" style="--target: 68%"></div>
+              </div>
+              <span>68%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer" style="background: #111; color: #eee; padding: 60px 20px 20px; font-family: 'Tajawal', sans-serif;">
+      <div class="footer-content" style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px;">
+        <div class="footer-brand">
+          <div class="nav-logo" style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+            <i class="fas fa-microphone-alt" style="font-size:1.8rem; color:var(--primary);"></i>
+            <span style="font-size:1.8rem; font-weight:800; color:white;">منبر</span>
+          </div>
+          <p style="color:#aaa; line-height:1.8; margin-bottom:20px; font-size:0.95rem;">منصة تدريب الدعاة الأولى في العالم العربي، تعتمد على الذكاء الاصطناعي لتطوير مهارات الخطابة والتأثير.</p>
+          <div class="social-links" style="display:flex; gap:15px;">
+            <a href="#" style="color:#aaa; font-size:1.2rem; transition:0.3s;"><i class="fab fa-twitter"></i></a>
+            <a href="#" style="color:#aaa; font-size:1.2rem; transition:0.3s;"><i class="fab fa-instagram"></i></a>
+            <a href="#" style="color:#aaa; font-size:1.2rem; transition:0.3s;"><i class="fab fa-youtube"></i></a>
+            <a href="#" style="color:#aaa; font-size:1.2rem; transition:0.3s;"><i class="fab fa-telegram"></i></a>
+          </div>
+        </div>
+        <div class="footer-links" style="display:flex; flex-direction:column; gap:10px;">
+          <h4 style="color:white; font-size:1.1rem; margin-bottom:15px;">روابط سريعة</h4>
+          <a href="#" onclick="scrollToSection('landing-page')" style="color:#ccc; text-decoration:none; font-size:0.95rem; display:block; padding:5px 0; transition:color 0.2s;">الرئيسية</a>
+          <a href="#" onclick="scrollToSection('features')" style="color:#ccc; text-decoration:none; font-size:0.95rem; display:block; padding:5px 0; transition:color 0.2s;">المميزات</a>
+          <a href="#" onclick="showPage('dashboard-page')" style="color:#ccc; text-decoration:none; font-size:0.95rem; display:block; padding:5px 0; transition:color 0.2s;">لوحة التحكم</a>
+        </div>
+        <div class="footer-links" style="display:flex; flex-direction:column; gap:10px;">
+          <h4 style="color:white; font-size:1.1rem; margin-bottom:15px;">الدعم والاستفسارات</h4>
+          <a href="#" style="color:#ccc; text-decoration:none; font-size:0.95rem; display:block; padding:5px 0; transition:color 0.2s;">الأسئلة الشائعة</a>
+          <a href="#" style="color:#ccc; text-decoration:none; font-size:0.95rem; display:block; padding:5px 0; transition:color 0.2s;">سياسة الخصوصية</a>
+          <a href="#" style="color:#ccc; text-decoration:none; font-size:0.95rem; display:block; padding:5px 0; transition:color 0.2s;">الشروط والأحكام</a>
+        </div>
+        <div class="footer-newsletter">
+          <h4 style="color:white; font-size:1.1rem; margin-bottom:15px;">النشرة الدعوية</h4>
+          <p style="color:#aaa; margin-bottom:15px; font-size:0.95rem; line-height:1.6;">اشترك في نشرتنا البريدية لتصلك أحدث تقنيات الخطابة واستراتيجيات التأثير الدعوي.</p>
+          <div class="newsletter-input" style="display:flex; overflow:hidden; border-radius:8px; border: 1px solid #444;">
+            <input type="email" placeholder="أدخل بريدك الإلكتروني... " style="padding:12px 15px; border:none; outline:none; flex:1; direction:rtl; background: #222; color: #fff;" />
+            <button style="border:none; background:var(--primary); color:white; padding:0 20px; cursor:pointer;"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom" style="margin-top:60px; padding-top:20px; border-top:1px solid #333; text-align:center; font-size:0.9rem; color:#888;">
+        <p>© 2024 منصة منبر للتدريب الدعوي. جميع الحقوق محفوظة.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ========== DASHBOARD PAGE ========== -->
+  <div id="dashboard-page" class="page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="nav-logo" style="cursor: pointer;" onclick="showPage('landing-page')">
+          <i class="fas fa-microphone-alt"></i>
+          <span>منبر</span>
+        </div>
+        <button class="sidebar-close" onclick="toggleSidebar()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="user-profile">
+        <div class="user-avatar">أ</div>
+        <div class="user-info">
+          <p class="user-name">أحمد العمري</p>
+          <p class="user-level">
+            <i class="fas fa-star"></i>
+            داعية مبتدئ
+          </p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" onclick="showDashboardSection('overview', this)">
+          <i class="fas fa-th-large"></i>
+          <span>نظرة عامة</span>
+        </a>
+        <a class="nav-item" onclick="showDashboardSection('training', this)">
+          <i class="fas fa-microphone"></i>
+          <span>التدريب الصوتي</span>
+        </a>
+        <a class="nav-item" onclick="showDashboardSection('simulation', this)">
+          <i class="fas fa-brain"></i>
+          <span>محاكاة السيناريوهات</span>
+        </a>
+        <a class="nav-item" onclick="showDashboardSection('progress', this)">
+          <i class="fas fa-chart-line"></i>
+          <span>تقدمي</span>
+        </a>
+        <a class="nav-item" onclick="showDashboardSection('achievements', this)">
+          <i class="fas fa-trophy"></i>
+          <span>الإنجازات</span>
+        </a>
+        <a class="nav-item" onclick="showDashboardSection('library', this)">
+          <i class="fas fa-book-open"></i>
+          <span>مكتبة إسلامية</span>
+        </a>
+        <a class="nav-item" href="editor.html">
+          <i class="fas fa-pen-fancy"></i>
+          <span>محرر الخطب</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a class="nav-item" onclick="showPage('landing-page')">
+          <i class="fas fa-home"></i>
+          <span>الصفحة الرئيسية</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- OVERLAY -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content" id="main-content">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="topbar-right">
+          <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="breadcrumb">
+            <span id="page-title">لوحة التحكم</span>
+          </div>
+        </div>
+        <div class="topbar-left">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="بحث..." />
+          </div>
+          <div class="dropdown-wrapper" style="position: relative;">
+            <button class="topbar-icon-btn" onclick="toggleDropdown(event, 'notif-dropdown')">
+              <i class="fas fa-bell"></i>
+              <span class="notification-dot"></span>
+            </button>
+            <div id="notif-dropdown" class="dropdown-menu" style="display: none; position: absolute; top: calc(100% + 10px); left: 0; background: white; width: 260px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid var(--border); z-index: 1000; padding: 15px; text-align: right;">
+              <h4 style="margin: 0 0 10px 0; font-size: 0.95rem; border-bottom: 1px solid var(--border); padding-bottom: 8px;">الإشعارات</h4>
+              <div style="font-size: 0.85rem; padding: 8px 0; border-bottom: 1px solid #f0f0f0; display:flex; gap:8px;">
+                <i class="fas fa-exclamation-circle" style="color: var(--secondary); margin-top:2px;"></i>
+                <span>لديك مسودة خطبة غير مكتملة تحتاج للمراجعة</span>
+              </div>
+              <div style="font-size: 0.85rem; padding: 8px 0; display:flex; gap:8px;">
+                <i class="fas fa-star" style="color: gold; margin-top:2px;"></i>
+                <span>تهانينا! أكملت 5 جلسات تدريبية بنجاح</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="dropdown-wrapper" style="position: relative;">
+            <div class="topbar-avatar" onclick="toggleDropdown(event, 'profile-dropdown')" style="cursor: pointer;">أ</div>
+            <div id="profile-dropdown" class="dropdown-menu" style="display: none; position: absolute; top: calc(100% + 10px); left: 0; background: white; width: 160px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid var(--border); z-index: 1000; padding: 10px; text-align: right;">
+              <a href="#" style="display: block; padding: 10px; color: var(--dark); text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; transition: 0.2s;"><i class="fas fa-user" style="width:20px;"></i> حسابي</a>
+              <a href="#" style="display: block; padding: 10px; color: var(--dark); text-decoration: none; font-size: 0.9rem; transition: 0.2s;"><i class="fas fa-cog" style="width:20px;"></i> الإعدادات</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OVERVIEW SECTION -->
+      <section class="dashboard-section active" id="overview-section">
+        <div class="section-welcome">
+          <h2>مرحباً بك، أحمد! 👋</h2>
+          <p>هنا ملخص تقدمك اليوم</p>
+        </div>
+
+        <!-- STAT CARDS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-icon" style="background: linear-gradient(135deg, #5FA8D3, #3E7CA6)">
+              <i class="fas fa-microphone"></i>
+            </div>
+            <div class="stat-card-info">
+              <p class="stat-card-label">جلسات التدريب</p>
+              <h3 class="stat-card-value" id="sessions-count">24</h3>
+              <p class="stat-card-change positive"><i class="fas fa-arrow-up"></i> +3 هذا الأسبوع</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon" style="background: linear-gradient(135deg, #7B68EE, #5A4FCF)">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-card-info">
+              <p class="stat-card-label">مستوى المهارة</p>
+              <h3 class="stat-card-value">متوسط</h3>
+              <p class="stat-card-change positive"><i class="fas fa-arrow-up"></i> ترقية قريباً</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon" style="background: linear-gradient(135deg, #48D1CC, #20B2AA)">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-card-info">
+              <p class="stat-card-label">نسبة التقدم</p>
+              <h3 class="stat-card-value">72%</h3>
+              <p class="stat-card-change positive"><i class="fas fa-arrow-up"></i> +8% هذا الشهر</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon" style="background: linear-gradient(135deg, #FF8C69, #FF6347)">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stat-card-info">
+              <p class="stat-card-label">الإنجازات</p>
+              <h3 class="stat-card-value">7</h3>
+              <p class="stat-card-change">من أصل 20</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions">
+          <h3>إجراءات سريعة</h3>
+          <div class="quick-actions-grid">
+            <button class="quick-btn"
+              onclick="showDashboardSection('training', document.querySelector('[onclick*=training]'))">
+              <i class="fas fa-microphone"></i>
+              <span>ابدأ جلسة تدريب</span>
+            </button>
+            <button class="quick-btn"
+              onclick="showDashboardSection('simulation', document.querySelector('[onclick*=simulation]'))">
+              <i class="fas fa-brain"></i>
+              <span>سيناريو جديد</span>
+            </button>
+            <button class="quick-btn" onclick="openChatbot()">
+              <i class="fas fa-robot"></i>
+              <span>اسأل المساعد</span>
+            </button>
+            <button class="quick-btn"
+              onclick="showDashboardSection('progress', document.querySelector('[onclick*=progress]'))">
+              <i class="fas fa-chart-bar"></i>
+              <span>عرض تقدمي</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RECENT ACTIVITY -->
+        <div class="recent-activity">
+          <h3>النشاط الأخير</h3>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon" style="background:#5FA8D320;color:#5FA8D3">
+                <i class="fas fa-microphone"></i>
+              </div>
+              <div class="activity-info">
+                <p class="activity-title">جلسة تدريب صوتي</p>
+                <p class="activity-time">منذ ساعتين</p>
+              </div>
+              <span class="activity-badge success">مكتمل</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background:#7B68EE20;color:#7B68EE">
+                <i class="fas fa-brain"></i>
+              </div>
+              <div class="activity-info">
+                <p class="activity-title">سيناريو: الرد على الشبهات</p>
+                <p class="activity-time">أمس</p>
+              </div>
+              <span class="activity-badge success">مكتمل</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background:#FF8C6920;color:#FF8C69">
+                <i class="fas fa-trophy"></i>
+              </div>
+              <div class="activity-info">
+                <p class="activity-title">إنجاز جديد: الخطيب المتقن</p>
+                <p class="activity-time">3 أيام مضت</p>
+              </div>
+              <span class="activity-badge gold">إنجاز</span>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background:#48D1CC20;color:#48D1CC">
+                <i class="fas fa-microphone"></i>
+              </div>
+              <div class="activity-info">
+                <p class="activity-title">جلسة تدريب صوتي</p>
+                <p class="activity-time">5 أيام مضت</p>
+              </div>
+              <span class="activity-badge success">مكتمل</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRAINING SECTION -->
+      <section class="dashboard-section" id="training-section">
+        <div class="section-welcome">
+          <h2>التدريب الصوتي 🎙️</h2>
+          <p>سجّل صوتك واحصل على تحليل فوري لأدائك</p>
+        </div>
+
+        <div class="training-container">
+          <div class="recording-panel">
+            <div class="recording-circle" id="recording-circle" onclick="toggleRecording()">
+              <div class="recording-pulse" id="recording-pulse"></div>
+              <i class="fas fa-microphone" id="recording-icon"></i>
+              <span id="recording-label">ابدأ التسجيل</span>
+            </div>
+
+            <div class="recording-timer" id="recording-timer">00:00</div>
+
+            <div class="waveform-container" id="waveform-container">
+              <div class="waveform" id="waveform">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+
+            <div class="recording-controls">
+              <button class="rec-btn" onclick="toggleRecording()" id="rec-toggle-btn">
+                <i class="fas fa-play"></i>
+                <span>تسجيل</span>
+              </button>
+              <button class="rec-btn rec-btn-stop" onclick="stopAndAnalyze()" id="rec-stop-btn" disabled>
+                <i class="fas fa-stop"></i>
+                <span>إيقاف وتحليل</span>
+              </button>
+              <button class="rec-btn rec-btn-reset" onclick="resetRecording()">
+                <i class="fas fa-redo"></i>
+                <span>إعادة</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- FEEDBACK PANEL -->
+          <div class="feedback-panel" id="feedback-panel">
+            <div class="feedback-header">
+              <h3><i class="fas fa-chart-pie"></i> نتائج التحليل</h3>
+              <span class="analyzing-badge" id="analyzing-badge" style="display:none">
+                <i class="fas fa-spinner fa-spin"></i> جاري التحليل...
+              </span>
+            </div>
+
+            <div class="feedback-metrics" id="feedback-metrics">
+              <div class="feedback-metric-item">
+                <div class="fm-header">
+                  <span class="fm-label"><i class="fas fa-tachometer-alt"></i> السرعة</span>
+                  <span class="fm-value" id="speed-value">--</span>
+                </div>
+                <div class="fm-bar-container">
+                  <div class="fm-bar" id="speed-bar" style="width:0%;background:linear-gradient(90deg,#5FA8D3,#3E7CA6)">
+                  </div>
+                </div>
+                <p class="fm-desc" id="speed-desc">سجّل صوتك لرؤية التحليل</p>
+              </div>
+
+              <div class="feedback-metric-item">
+                <div class="fm-header">
+                  <span class="fm-label"><i class="fas fa-volume-up"></i> الوضوح</span>
+                  <span class="fm-value" id="clarity-value">--</span>
+                </div>
+                <div class="fm-bar-container">
+                  <div class="fm-bar" id="clarity-bar"
+                    style="width:0%;background:linear-gradient(90deg,#7B68EE,#5A4FCF)"></div>
+                </div>
+                <p class="fm-desc" id="clarity-desc">سجّل صوتك لرؤية التحليل</p>
+              </div>
+
+              <div class="feedback-metric-item">
+                <div class="fm-header">
+                  <span class="fm-label"><i class="fas fa-fire"></i> الثقة</span>
+                  <span class="fm-value" id="confidence-value">--</span>
+                </div>
+                <div class="fm-bar-container">
+                  <div class="fm-bar" id="confidence-bar"
+                    style="width:0%;background:linear-gradient(90deg,#48D1CC,#20B2AA)"></div>
+                </div>
+                <p class="fm-desc" id="confidence-desc">سجّل صوتك لرؤية التحليل</p>
+              </div>
+
+              <div class="overall-score" id="overall-score" style="display:none">
+                <div class="score-circle">
+                  <span id="score-number">0</span>
+                  <small>/ 100</small>
+                </div>
+                <div class="score-info">
+                  <h4 id="score-title">ممتاز!</h4>
+                  <p id="score-tip"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIPS -->
+        <div class="training-tips">
+          <h3>نصائح للتسجيل</h3>
+          <div class="tips-grid">
+            <div class="tip-card">
+              <i class="fas fa-wind"></i>
+              <p>تنفس بعمق قبل البدء</p>
+            </div>
+            <div class="tip-card">
+              <i class="fas fa-volume-down"></i>
+              <p>اجلس في مكان هادئ</p>
+            </div>
+            <div class="tip-card">
+              <i class="fas fa-clock"></i>
+              <p>ابدأ بجلسات 2-3 دقائق</p>
+            </div>
+            <div class="tip-card">
+              <i class="fas fa-redo"></i>
+              <p>كرر التسجيل لأفضل نتيجة</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SIMULATION SECTION -->
+      <section class="dashboard-section" id="simulation-section">
+        <div class="section-welcome">
+          <h2>محاكاة السيناريوهات 🧠</h2>
+          <p>اختبر مهاراتك في مواقف دعوية حقيقية</p>
+        </div>
+
+        <div class="simulation-container">
+          <div class="scenario-panel">
+            <div class="scenario-header">
+              <div class="scenario-meta">
+                <span class="scenario-tag" id="scenario-category">رد الشبهات</span>
+                <span class="scenario-difficulty medium">متوسط</span>
+              </div>
+              <div class="scenario-progress-info">
+                <span id="scenario-counter">سيناريو 1 من 4</span>
+              </div>
+            </div>
+
+            <div class="scenario-body">
+              <div class="scenario-avatar">
+                <div class="person-icon">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="scenario-bubble" id="scenario-text">
+                  يسألك زميل في العمل: "لماذا يُسمح في الإسلام بتعدد الزوجات؟ ألا يُعدّ ذلك ظلماً للمرأة؟"
+                </div>
+              </div>
+            </div>
+
+            <div class="choices-container" id="choices-container">
+              <!-- Choices rendered by JS -->
+            </div>
+
+            <div class="result-area" id="result-area" style="display:none">
+              <div class="result-card" id="result-card">
+                <div class="result-icon" id="result-icon"></div>
+                <h4 id="result-title"></h4>
+                <p id="result-message"></p>
+                <button class="btn-primary" onclick="nextScenario()">
+                  <i class="fas fa-arrow-left"></i>
+                  السيناريو التالي
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="simulation-sidebar">
+            <div class="sim-stat-card">
+              <i class="fas fa-check-circle" style="color:#66BB6A"></i>
+              <div>
+                <p>إجابات صحيحة</p>
+                <h3 id="correct-count">0</h3>
+              </div>
+            </div>
+            <div class="sim-stat-card">
+              <i class="fas fa-times-circle" style="color:#EF5350"></i>
+              <div>
+                <p>إجابات خاطئة</p>
+                <h3 id="wrong-count">0</h3>
+              </div>
+            </div>
+            <div class="sim-stat-card">
+              <i class="fas fa-star" style="color:#FFD700"></i>
+              <div>
+                <p>النقاط</p>
+                <h3 id="sim-score">0</h3>
+              </div>
+            </div>
+            <div class="scenarios-list">
+              <h4>السيناريوهات</h4>
+              <div class="scenario-dots" id="scenario-dots"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROGRESS SECTION -->
+      <section class="dashboard-section" id="progress-section">
+        <div class="section-welcome">
+          <h2>تقدمي 📈</h2>
+          <p>تتبع رحلتك التدريبية بالتفصيل</p>
+        </div>
+
+        <div class="progress-grid">
+          <div class="progress-card full-width">
+            <h3>مؤشرات الأداء الرئيسية</h3>
+            <div class="kpi-list">
+              <div class="kpi-item">
+                <div class="kpi-info">
+                  <span class="kpi-name">الخطابة العامة</span>
+                  <span class="kpi-percent">85%</span>
+                </div>
+                <div class="kpi-bar-wrap">
+                  <div class="kpi-bar" style="--kpi-width: 85%; --kpi-color: #5FA8D3"></div>
+                </div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-info">
+                  <span class="kpi-name">أسلوب الإقناع</span>
+                  <span class="kpi-percent">72%</span>
+                </div>
+                <div class="kpi-bar-wrap">
+                  <div class="kpi-bar" style="--kpi-width: 72%; --kpi-color: #7B68EE"></div>
+                </div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-info">
+                  <span class="kpi-name">رد الشبهات</span>
+                  <span class="kpi-percent">91%</span>
+                </div>
+                <div class="kpi-bar-wrap">
+                  <div class="kpi-bar" style="--kpi-width: 91%; --kpi-color: #48D1CC"></div>
+                </div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-info">
+                  <span class="kpi-name">لغة الجسد</span>
+                  <span class="kpi-percent">68%</span>
+                </div>
+                <div class="kpi-bar-wrap">
+                  <div class="kpi-bar" style="--kpi-width: 68%; --kpi-color: #FF8C69"></div>
+                </div>
+              </div>
+              <div class="kpi-item">
+                <div class="kpi-info">
+                  <span class="kpi-name">الثقة بالنفس</span>
+                  <span class="kpi-percent">79%</span>
+                </div>
+                <div class="kpi-bar-wrap">
+                  <div class="kpi-bar" style="--kpi-width: 79%; --kpi-color: #66BB6A"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="progress-card">
+            <h3>إحصائيات الأسبوع</h3>
+            <div class="week-chart">
+              <div class="chart-bars">
+                <div class="chart-col">
+                  <div class="chart-bar-wrap">
+                    <div class="chart-bar-item" style="height:60%"></div>
+                  </div>
+                  <span>س</span>
+                </div>
+                <div class="chart-col">
+                  <div class="chart-bar-wrap">
+                    <div class="chart-bar-item" style="height:80%"></div>
+                  </div>
+                  <span>أ</span>
+                </div>
+                <div class="chart-col">
+                  <div class="chart-bar-wrap">
+                    <div class="chart-bar-item" style="height:45%"></div>
+                  </div>
+                  <span>ث</span>
+                </div>
+                <div class="chart-col">
+                  <div class="chart-bar-wrap">
+                    <div class="chart-bar-item" style="height:90%"></div>
+                  </div>
+                  <span>ر</span>
+                </div>
+                <div class="chart-col">
+                  <div class="chart-bar-wrap">
+                    <div class="chart-bar-item" style="height:70%"></div>
+                  </div>
+                  <span>خ</span>
+                </div>
+                <div class="chart-col">
+                  <div class="chart-bar-wrap">
+                    <div class="chart-bar-item" style="height:30%"></div>
+                  </div>
+                  <span>ج</span>
+                </div>
+                <div class="chart-col">
+                  <div class="chart-bar-wrap">
+                    <div class="chart-bar-item" style="height:85%"></div>
+                  </div>
+                  <span>س</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="progress-card">
+            <h3>أهداف الشهر</h3>
+            <div class="goals-list">
+              <div class="goal-item done">
+                <i class="fas fa-check-circle"></i>
+                <span>10 جلسات تدريبية</span>
+              </div>
+              <div class="goal-item done">
+                <i class="fas fa-check-circle"></i>
+                <span>إتمام 5 سيناريوهات</span>
+              </div>
+              <div class="goal-item">
+                <i class="far fa-circle"></i>
+                <span>تحقيق 90% في الثقة</span>
+              </div>
+              <div class="goal-item">
+                <i class="far fa-circle"></i>
+                <span>تدريب 30 دقيقة يومياً</span>
+              </div>
+              <div class="goal-item">
+                <i class="far fa-circle"></i>
+                <span>الحصول على شهادة المستوى 2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACHIEVEMENTS SECTION -->
+      <section class="dashboard-section" id="achievements-section">
+        <div class="section-welcome">
+          <h2>الإنجازات 🏆</h2>
+          <p>احتفل بإنجازاتك في رحلة التدريب</p>
+        </div>
+
+        <div class="achievements-grid">
+          <div class="achievement-card earned">
+            <div class="achievement-icon gold"><i class="fas fa-microphone"></i></div>
+            <h4>الخطيب المبتدئ</h4>
+            <p>أكملت أول 5 جلسات تدريب</p>
+            <span class="earned-badge"><i class="fas fa-check"></i> محقق</span>
+          </div>
+          <div class="achievement-card earned">
+            <div class="achievement-icon blue"><i class="fas fa-brain"></i></div>
+            <h4>المفكر الداعية</h4>
+            <p>أجبت على 10 سيناريوهات بشكل صحيح</p>
+            <span class="earned-badge"><i class="fas fa-check"></i> محقق</span>
+          </div>
+          <div class="achievement-card earned">
+            <div class="achievement-icon teal"><i class="fas fa-fire"></i></div>
+            <h4>الخطيب المتقن</h4>
+            <p>حصلت على 85% أو أكثر في الثقة</p>
+            <span class="earned-badge"><i class="fas fa-check"></i> محقق</span>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon gray"><i class="fas fa-star"></i></div>
+            <h4>نجم الدعوة</h4>
+            <p>أكمل 50 جلسة تدريبية</p>
+            <span class="progress-badge">24/50</span>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon gray"><i class="fas fa-trophy"></i></div>
+            <h4>البطل الدعوي</h4>
+            <p>حقق 100% في جميع المؤشرات</p>
+            <span class="progress-badge">قريباً</span>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon gray"><i class="fas fa-certificate"></i></div>
+            <h4>الداعية المحترف</h4>
+            <p>احصل على جميع الشهادات</p>
+            <span class="progress-badge">1/5</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIBRARY SECTION -->
+      <section class="dashboard-section" id="library-section">
+        <div class="section-welcome">
+          <h2>مكتبة إسلامية 📚</h2>
+          <p>تصفح وابحث في القرآن الكريم والأحاديث النبوية والمقالات الدعوية</p>
+        </div>
+
+        <div class="library-controls">
+          <div class="library-tabs">
+            <button class="lib-tab active" onclick="loadLibraryCategory('quran')">القرآن الكريم</button>
+            <button class="lib-tab" onclick="loadLibraryCategory('hadith')">الأحاديث النبوية</button>
+            <button class="lib-tab" onclick="loadLibraryCategory('articles')">ردود وشبهات</button>
+          </div>
+          <div class="search-box library-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="lib-search-input" placeholder="ابحث في المكتبة..."
+              oninput="filterLibraryResults()" />
+          </div>
+        </div>
+
+        <div id="library-loading" style="display:none; text-align:center; padding: 3rem;">
+          <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary)"></i> جاري التحميل...
+        </div>
+
+        <div class="library-grid" id="library-container">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ========== CHATBOT ========== -->
+  <div class="chatbot-fab" id="chatbot-fab" onclick="openChatbot()">
+    <i class="fas fa-robot" id="chatbot-icon"></i>
+    <span class="chatbot-badge">1</span>
+  </div>
+
+  <div class="chatbot-window" id="chatbot-window">
+    <div class="chatbot-header">
+      <div class="chatbot-header-info">
+        <div class="chatbot-avatar"><i class="fas fa-robot"></i></div>
+        <div>
+          <p class="chatbot-name">مساعد منبر</p>
+          <p class="chatbot-status"><span class="status-dot"></span>متصل الآن</p>
+        </div>
+      </div>
+      <div class="chatbot-header-actions">
+        <button onclick="clearChat()"><i class="fas fa-trash-alt"></i></button>
+        <button onclick="closeChatbot()"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+
+    <div class="chatbot-messages" id="chatbot-messages">
+      <div class="message bot-message">
+        <div class="message-avatar"><i class="fas fa-robot"></i></div>
+        <div class="message-bubble">
+          <p>السلام عليكم! أنا مساعدك الذكي في منصة منبر. كيف يمكنني مساعدتك اليوم؟ 😊</p>
+          <span class="message-time">الآن</span>
+        </div>
+      </div>
+      <div class="quick-replies">
+        <button onclick="sendQuickReply('كيف أبدأ التدريب؟')">كيف أبدأ التدريب؟</button>
+        <button onclick="sendQuickReply('ما هي مستويات المهارة؟')">مستويات المهارة</button>
+        <button onclick="sendQuickReply('نصائح للخطابة')">نصائح للخطابة</button>
+      </div>
+    </div>
+
+    <div class="chatbot-input-area">
+      <input type="text" id="chatbot-input" placeholder="اكتب رسالتك..." onkeypress="handleChatInput(event)" />
+      <button class="send-btn" onclick="sendChatMessage()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- DEMO MODAL -->
+  <div class="modal-overlay" id="demo-modal" onclick="closeDemoModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>كيف يعمل منبر؟</h3>
+        <button onclick="closeDemoModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="demo-steps">
+          <div class="demo-step">
+            <div class="step-num">1</div>
+            <div class="step-info">
+              <h4>سجّل صوتك</h4>
+              <p>ابدأ جلسة التدريب وسجّل خطابك أو دعوتك</p>
+            </div>
+          </div>
+          <div class="demo-step">
+            <div class="step-num">2</div>
+            <div class="step-info">
+              <h4>احصل على تحليل</h4>
+              <p>يحلل النظام سرعتك، وضوحك، وثقتك فوراً</p>
+            </div>
+          </div>
+          <div class="demo-step">
+            <div class="step-num">3</div>
+            <div class="step-info">
+              <h4>تدرّب على السيناريوهات</h4>
+              <p>واجه مواقف دعوية حقيقية واختر أفضل الردود</p>
+            </div>
+          </div>
+          <div class="demo-step">
+            <div class="step-num">4</div>
+            <div class="step-info">
+              <h4>تابع تقدمك</h4>
+              <p>راقب تطورك وحقق الإنجازات</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeDemoModal(); showPage('dashboard-page')">
+          ابدأ الآن
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

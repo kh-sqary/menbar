@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>محرر الخطب - منبر</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .topbar {
+      position: relative;
+      width: 100%;
+      box-shadow: var(--shadow-sm);
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .editor-wrapper {
+      flex: 1;
+      padding: 40px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+    }
+    
+    @media (max-width: 900px) {
+      .editor-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .editor-header {
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .editor-title {
+      flex: 1;
+      border: none;
+      font-size: 2rem;
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 800;
+      background: transparent;
+      color: var(--dark);
+      outline: none;
+    }
+    .editor-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+    }
+    .section-title {
+      font-family: 'Tajawal', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .textarea-box {
+      width: 100%;
+      min-height: 200px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 15px;
+      font-family: inherit;
+      font-size: 1.1rem;
+      resize: vertical;
+      background: #fafafa;
+      margin-bottom: 20px;
+      color: var(--text);
+      line-height: 1.8;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .textarea-box:focus {
+      border-color: var(--primary);
+      background: white;
+    }
+    .sidebar-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .sidebar-box {
+      width: 100%;
+      min-height: 150px;
+      border: 1px solid #e0e0e0;
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      background: #fafafa;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .sidebar-box:focus {
+      border-color: var(--secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar" style="border-radius: 0; position: sticky; top:0;">
+    <div class="nav-logo" style="margin-right:20px;">
+      <i class="fas fa-microphone-alt"></i>
+      <span>منبر - محرر الخطب</span>
+    </div>
+    <div class="topbar-left" style="margin-left:20px; display:flex; gap:10px;">
+      <button class="btn-primary" onclick="saveKhutbah()"><i class="fas fa-save"></i> حفظ المسودة</button>
+      <button class="btn-outline" onclick="window.location.href='khutbah-view.html'"><i class="fas fa-eye"></i> استعراض كخطبة</button>
+      <button class="btn-outline" onclick="window.location.href='index.html'">عودة <i class="fas fa-arrow-left"></i></button>
+    </div>
+  </div>
+
+  <div class="editor-wrapper">
+    <!-- Right Column: Khutbah Elements -->
+    <div class="main-column">
+      <div class="editor-header">
+        <input type="text" id="khutbah-title" class="editor-title" placeholder="عنوان الخطبة الفريد..." />
+      </div>
+
+      <div class="editor-card">
+        <h3 class="section-title"><i class="fas fa-book-open"></i> عناصر الخطبة</h3>
+        
+        <label style="font-weight:600; color:var(--dark); display:block; margin-bottom:5px;">المقدمة</label>
+        <textarea id="box-intro" class="textarea-box" placeholder="اكتب مقدمة الخطبة هنا واستفتاحها..."></textarea>
+        
+        <label style="font-weight:600; color:var(--dark); display:block; margin-bottom:5px;">صلب الموضوع</label>
+        <textarea id="box-body" class="textarea-box" style="min-height:300px;" placeholder="اكتب صلب الموضوع والعناصر الأساسية هنا..."></textarea>
+
+        <label style="font-weight:600; color:var(--dark); display:block; margin-bottom:5px;">الخاتمة والدعاء</label>
+        <textarea id="box-conclusion" class="textarea-box" placeholder="اكتب الخاتمة والتوصيات والدعاء هنا..."></textarea>
+      </div>
+    </div>
+
+    <!-- Left Column: Evidences Sidebar -->
+    <div class="side-column">
+      <div class="sidebar-card">
+        <h3 class="section-title"><i class="fas fa-quote-right"></i> صندوق الأدلة</h3>
+        
+        <div>
+          <label style="font-weight:600; color:var(--dark); display:block; margin-bottom:5px;"><i class="fas fa-quran" style="color:var(--primary);"></i> القرآن الكريم</label>
+          <textarea id="ev-quran" class="sidebar-box" placeholder="استشهد بالآيات هنا..."></textarea>
+        </div>
+
+        <div>
+           <label style="font-weight:600; color:var(--dark); display:block; margin-bottom:5px;"><i class="fas fa-book" style="color:var(--primary);"></i> الأحاديث النبوية</label>
+           <textarea id="ev-hadith" class="sidebar-box" placeholder="اكتب الأحاديث النبوية هنا..."></textarea>
+        </div>
+
+        <div>
+           <label style="font-weight:600; color:var(--dark); display:block; margin-bottom:5px;"><i class="fas fa-pen-nib" style="color:var(--primary);"></i> الشعر والحكم</label>
+           <textarea id="ev-poetry" class="sidebar-box" placeholder="استشهد بالشعر والحكم هنا..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Pull pending evidences from Library if any
+      const pendingQuran = localStorage.getItem('pending_quran');
+      if (pendingQuran) {
+        document.getElementById('ev-quran').value = pendingQuran;
+        localStorage.removeItem('pending_quran');
+      }
+      
+      const pendingHadith = localStorage.getItem('pending_hadith');
+      if (pendingHadith) {
+        document.getElementById('ev-hadith').value = pendingHadith;
+        localStorage.removeItem('pending_hadith');
+      }
+      
+      const pendingPoetry = localStorage.getItem('pending_poetry');
+      if (pendingPoetry) {
+        document.getElementById('ev-poetry').value = pendingPoetry;
+        localStorage.removeItem('pending_poetry');
+      }
+      
+      // Attempt to load current text if available
+      const savedStr = localStorage.getItem('current_khutbah');
+      if (savedStr) {
+        try {
+          const s = JSON.parse(savedStr);
+          document.getElementById('khutbah-title').value = s.title || '';
+          document.getElementById('box-intro').value = s.intro || '';
+          document.getElementById('box-body').value = s.body || '';
+          document.getElementById('box-conclusion').value = s.conclusion || '';
+          // Only overwrite if it wasn't just filled by Library pending injection
+          if (!document.getElementById('ev-quran').value) document.getElementById('ev-quran').value = s.quran || '';
+          if (!document.getElementById('ev-hadith').value) document.getElementById('ev-hadith').value = s.hadith || '';
+          if (!document.getElementById('ev-poetry').value) document.getElementById('ev-poetry').value = s.poetry || '';
+        } catch(e) {}
+      }
+    });
+
+    async function saveKhutbah() {
+      const title = document.getElementById('khutbah-title').value.trim();
+      
+      const intro = document.getElementById('box-intro').value.trim();
+      const body = document.getElementById('box-body').value.trim();
+      const conclusion = document.getElementById('box-conclusion').value.trim();
+      const quran = document.getElementById('ev-quran').value.trim();
+      const hadith = document.getElementById('ev-hadith').value.trim();
+      const poetry = document.getElementById('ev-poetry').value.trim();
+
+      const khutbahData = { title, intro, body, conclusion, quran, hadith, poetry };
+      const combinedContent = JSON.stringify(khutbahData);
+      
+      // Save locally to display in the reviewer
+      localStorage.setItem('current_khutbah', combinedContent);
+
+      if (!title || (!intro && !body)) {
+        alert("يرجى كتابة العنوان وبعض المحتوى الرئيسي قبل الحفظ.");
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/api/khutbahs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, content: combinedContent })
+        });
+
+        if (res.ok) {
+          alert('تم حفظ الخطبة بنجاح! يمكنك الآن استعراضها كخطبة نهائية.');
+        } else {
+          alert('تعذر حفظ الخطبة.');
+        }
+      } catch (err) {
+        alert('حدث خطأ أثناء الحفظ بالسيرفر، لكن تم حفظها محلياً مؤقتاً.');
+      }
+    }
+  </script>
+</body>
+</html>
