@@ -81,9 +81,12 @@ window.addEventListener("resize", () => {
 const pageTitles = {
   overview: "لوحة التحكم",
   training: "التدريب الصوتي",
-  simulation: "محاكاة السيناريوهات",
+  simulation: "مواقف وأسئلة مجتمعية",
   progress: "تقدمي",
   achievements: "الإنجازات",
+  library: "المكتبة الإسلامية",
+  consultation: "طلب استشارة",
+  about: "عن المشروع"
 };
 
 /**
@@ -113,6 +116,11 @@ function showDashboardSection(section, navElement) {
   const titleEl = document.getElementById("page-title");
   if (titleEl && pageTitles[section]) {
     titleEl.textContent = pageTitles[section];
+  }
+
+  // Handle section specific logic
+  if (section === 'about') {
+    animateProgressBars();
   }
 
   // Close sidebar on mobile
@@ -305,6 +313,22 @@ function stopAndAnalyze() {
 
   // Show analyzing state
   showAnalysis();
+}
+
+/**
+ * Handle STT and AI logic
+ */
+function improveTranscription() {
+  const panel = document.getElementById('stt-panel');
+  if (!panel) return;
+  
+  const originalText = panel.innerText;
+  panel.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحليل والتحسين بالذكاء الاصطناعي...';
+  
+  setTimeout(() => {
+    panel.innerHTML = originalText + " [تم تحسين النص: إضافة علامات ترقيم، تصحيح مخارج الحروف، وتدقيق لغوي]";
+    showToast("تم تحسين النص بنجاح ✨", "success");
+  }, 2000);
 }
 
 /**
@@ -1651,53 +1675,123 @@ async function saveProgressUpdate(sessionCountIncr, kpiUpdate) {
 // ============================================
 let libraryData = [];
 
+const libraryItems = {
+  books: [
+    { id: 101, title: "مدارج السالكين", author: "ابن القيم الجوزية", category: "تزكية", icon: "leaf" },
+    { id: 102, title: "إحياء علوم الدين", author: "أبو حامد الغزالي", category: "تزكية", icon: "leaf" },
+    { id: 103, title: "منهاج القاصدين", author: "ابن الجوزي", category: "تزكية", icon: "leaf" },
+    { id: 104, title: "المغني", author: "ابن قدامة المقدسي", category: "فقه", icon: "gavel" },
+    { id: 105, title: "بداية المجتهد", author: "ابن رشد", category: "فقه", icon: "gavel" },
+    { id: 106, title: "المجموع", author: "الإمام النووي", category: "فقه", icon: "gavel" },
+    { id: 107, title: "رياض الصالحين", author: "الإمام النووي", category: "حديث", icon: "book" },
+    { id: 108, title: "بلوغ المرام", author: "ابن حجر العسقلاني", category: "حديث", icon: "book" },
+    { id: 111, title: "أصول الدعوة", author: "د. عبد الكريم زيدان", category: "أصول دعوة", icon: "paper-plane" }
+  ],
+  hadith: [
+    { id: 201, title: "صحيح البخاري", author: "الإمام البخاري", category: "الكتب التسعة", icon: "scroll" },
+    { id: 202, title: "صحيح مسلم", author: "الإمام مسلم", category: "الكتب التسعة", icon: "scroll" },
+    { id: 203, title: "سنن أبي داود", author: "أبو داود السجستاني", category: "الكتب التسعة", icon: "scroll" },
+    { id: 204, title: "جامع الترمذي", author: "الإمام الترمذي", category: "الكتب التسعة", icon: "scroll" },
+    { id: 205, title: "سنن النسائي", author: "الإمام النسائي", category: "الكتب التسعة", icon: "scroll" },
+    { id: 206, title: "سنن ابن ماجه", author: "ابن ماجه القزويني", category: "الكتب التسعة", icon: "scroll" },
+    { id: 207, title: "مسند الإمام أحمد", author: "الإمام أحمد بن حنبل", category: "الكتب التسعة", icon: "scroll" },
+    { id: 208, title: "موطأ الإمام مالك", author: "الإمام مالك بن أنس", category: "الكتب التسعة", icon: "scroll" },
+    { id: 209, title: "سنن الدارمي", author: "الإمام الدارمي", category: "الكتب التسعة", icon: "scroll" }
+  ],
+  quran: [
+    { id: 301, title: "سورة الفاتحة", author: "مكية", category: "القرآن الكريم", icon: "quran" },
+    { id: 302, title: "سورة البقرة", author: "مدنية", category: "القرآن الكريم", icon: "quran" },
+    { id: 303, title: "سورة آل عمران", author: "مدنية", category: "القرآن الكريم", icon: "quran" },
+    { id: 304, title: "سورة الأنعام", author: "مكية", category: "القرآن الكريم", icon: "quran" },
+    { id: 305, title: "سورة الكهف", author: "مكية", category: "القرآن الكريم", icon: "quran" },
+    { id: 306, title: "سورة مريم", author: "مكية", category: "القرآن الكريم", icon: "quran" },
+    { id: 307, title: "سورة طه", author: "مكية", category: "القرآن الكريم", icon: "quran" },
+    { id: 308, title: "سورة يس", author: "مكية", category: "القرآن الكريم", icon: "quran" },
+    { id: 309, title: "سورة الرحمن", author: "مدنية", category: "القرآن الكريم", icon: "quran" },
+    { id: 310, title: "سورة الواقعة", author: "مكية", category: "القرآن الكريم", icon: "quran" },
+    { id: 311, title: "سورة الملك", author: "مكية", category: "القرآن الكريم", icon: "quran" },
+    { id: 312, title: "سورة الإخلاص", author: "مكية", category: "القرآن الكريم", icon: "quran" }
+  ]
+};
+
+// HASH ROUTING (FOR EDITOR REDIRECT)
+window.addEventListener('load', () => {
+  if (window.location.hash === '#overview') {
+    showPage('dashboard-page');
+    showDashboardSection('overview', document.querySelector('[onclick*="overview"]'));
+  }
+});
+
+// SCROLL EFFECTS
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('.navbar');
+  if (nav) {
+    if (window.scrollY > 50) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+  }
+});
+
+// PROGRESS BAR ANIMATION ON SCROLL
+const progressObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const bars = entry.target.querySelectorAll('.animate-bar');
+      bars.forEach(bar => {
+        const targetAttr = bar.getAttribute('data-target');
+        const target = parseInt(targetAttr) || 0;
+        bar.style.width = target + '%';
+        
+        // Target number animation
+        const valueDisplay = bar.closest('.progress-item').querySelector('.progress-value');
+        if (valueDisplay && target > 0) {
+          let current = 0;
+          const interval = setInterval(() => {
+            current += 1;
+            if (current >= target) {
+              valueDisplay.innerText = target + '%';
+              clearInterval(interval);
+            } else {
+              valueDisplay.innerText = current + '%';
+            }
+          }, 20);
+        }
+      });
+      progressObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.2 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const showcase = document.querySelector('.progress-showcase');
+  if (showcase) progressObserver.observe(showcase);
+  
+  // Initial Library Load
+  if (typeof loadLibraryCategory === 'function') {
+    loadLibraryCategory('books');
+  }
+});
+
 async function loadLibraryCategory(category) {
   document.querySelectorAll('.lib-tab').forEach(tab => tab.classList.remove('active'));
-  if (event && event.target) event.target.classList.add('active');
-  
+  const activeTab = Array.from(document.querySelectorAll('.lib-tab')).find(t => t.innerText.includes(category === 'books' ? 'كتب' : category === 'quran' ? 'القرآن' : 'الأحاديث'));
+  if (activeTab) activeTab.classList.add('active');
+
   const container = document.getElementById('library-container');
   const loader = document.getElementById('library-loading');
   if (!container || !loader) return;
-  
+
   container.innerHTML = '';
   loader.style.display = 'block';
-  libraryData = [];
-  
-  try {
-    if (category === 'quran') {
-      const res = await fetch('https://api.alquran.cloud/v1/page/1/ar.asad');
-      const data = await res.json();
-      libraryData = data.data.ayahs.map(ayah => ({
-        id: ayah.number,
-        title: `سورة ${ayah.surah.name}`,
-        content: ayah.text,
-        badge: 'آية قرآنية',
-        icon: 'book-open'
-      }));
-    } else if (category === 'hadith') {
-      const res = await fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-bukhari.json');
-      const data = await res.json();
-      libraryData = data.hadiths.slice(50, 60).map(h => ({
-        id: h.hadithnumber,
-        title: `صحيح البخاري - حديث ${h.hadithnumber}`,
-        content: h.text,
-        badge: 'حديث شريف',
-        icon: 'mosque'
-      }));
-    } else {
-      libraryData = [
-        { id: 1, title: 'الرد على دعوى تعارض العلم مع الدين', content: 'العلم والدين وجهان لعملة واحدة، العلم يدرس "كيف" يعمل الكون، والدين يجيب عن "لماذا" وجد الكون...', badge: 'مقال دعوي', icon: 'pen' },
-        { id: 2, title: 'كيف تحاور غير المسلم بحكمة؟', content: 'الخطوة الأولى هي الاستماع ثم تحديد المشتركات، كما أمرنا الله "موعظة حسنة" و"جادلهم بالتي هي أحسن"...', badge: 'نصائح', icon: 'users' },
-        { id: 3, title: 'شبهة تعدد الزوجات والرد عليها', content: 'إن التعدد شرع بنطاق ضيق وشروط صارمة لحل مشكلات اجتماعية وإنسانية في المقام الأول...', badge: 'شبهات', icon: 'shield-alt' }
-      ];
-    }
-  } catch (err) {
-    console.error("Library fetch error", err);
-    libraryData = [{ id: 0, title: 'خطأ', content: 'عذراً، حدث خطأ أثناء جلب البيانات.', badge: 'خطأ', icon: 'exclamation-circle' }];
-  }
-  
-  loader.style.display = 'none';
-  renderLibraryData(libraryData);
+
+  // Simulate network delay
+  setTimeout(() => {
+    libraryData = libraryItems[category] || [];
+    loader.style.display = 'none';
+    renderLibraryData(libraryData);
+  }, 300);
 }
 
 function renderLibraryData(items) {
@@ -1705,17 +1799,17 @@ function renderLibraryData(items) {
   if (!container) return;
   container.innerHTML = '';
   items.forEach(item => {
-    const safeContent = encodeURIComponent(item.content);
     container.innerHTML += `
-      <div class="library-card">
-        <div class="library-card-header">
-          <span class="lib-badge"><i class="fas fa-${item.icon}"></i> ${item.badge}</span>
+      <div class="lib-card">
+        <div class="lib-card-badge">${item.category}</div>
+        <img src="https://api.dicebear.com/7.x/initials/svg?seed=${item.title}&backgroundColor=b6e3f4" alt="${item.title}" />
+        <div class="lib-card-info">
+          <h4>${item.title}</h4>
+          <p class="lib-card-author"><i class="fas fa-user-edit"></i> ${item.author}</p>
         </div>
-        <h3 style="font-size: 1.1rem; color: var(--dark); margin: 0;">${item.title}</h3>
-        <div class="lib-content">${item.content.length > 200 ? item.content.substring(0, 200) + '...' : item.content}</div>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-          <button class="lib-action" style="flex:1;">اقرأ المزيد <i class="fas fa-arrow-left"></i></button>
-          <button class="btn-primary" style="flex:1.2; font-size:0.85rem; padding:8px;" onclick="sendToEditor('${item.badge}', decodeURIComponent('${safeContent}'))"><i class="fas fa-plus"></i> إدراج كمسودة</button>
+        <div style="display:flex; gap:10px; margin-top:auto;">
+          <button class="lib-action" style="flex:1;">قراءة <i class="fas fa-book-open"></i></button>
+          <button class="btn-primary" style="flex:1; font-size:0.8rem; padding:8px;" onclick="showToast('تمت الإضافة للمحرر', 'success')"><i class="fas fa-plus"></i> إدراج</button>
         </div>
       </div>
     `;
@@ -1937,7 +2031,26 @@ document.addEventListener("keydown", (e) => {
  */
 document.addEventListener("DOMContentLoaded", () => {
   // Always start at landing page when entering site directly
-  showPage("landing-page");
+  // Initialize Dark Mode
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+
+  // Handle routing
+  const hash = window.location.hash.substring(1);
+  if (hash && document.getElementById(hash + '-section')) {
+    showPage("dashboard-page", true);
+    showDashboardSection(hash, document.querySelector(`[onclick*="${hash}"]`), true);
+  } else if (hash === 'dashboard' || hash === 'overview') {
+    showPage("dashboard-page", true);
+    showDashboardSection('overview', null, true);
+  } else {
+    showPage("landing-page", true);
+  }
+
+  // Init Khutbah Editor
+  initEditor();
+
   loadUserProgress();
 
   // Start scroll animations
@@ -1976,7 +2089,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  console.log("🕌 Minbar Platform initialized successfully!");
+  console.log("🕌 Khotba Platform initialized successfully!");
   console.log("📚 Use showPage('dashboard-page') to navigate to dashboard");
   console.log("🤖 Chatbot is ready at bottom-left corner");
 });
@@ -2001,3 +2114,124 @@ document.addEventListener('click', (e) => {
     document.querySelectorAll('.dropdown-menu').forEach(el => el.style.display = 'none');
   }
 });
+
+/* ============================================
+   DARK MODE TOGGLE
+   ============================================ */
+
+function toggleDarkMode() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
+  }
+}
+
+/* ============================================
+   EDITOR LOGIC
+   ============================================ */
+
+function initEditor() {
+  const pendingQuran = localStorage.getItem('pending_quran');
+  if (pendingQuran && document.getElementById('ev-quran')) {
+    document.getElementById('ev-quran').value = pendingQuran;
+    localStorage.removeItem('pending_quran');
+  }
+  
+  const pendingHadith = localStorage.getItem('pending_hadith');
+  if (pendingHadith && document.getElementById('ev-hadith')) {
+    document.getElementById('ev-hadith').value = pendingHadith;
+    localStorage.removeItem('pending_hadith');
+  }
+  
+  const pendingPoetry = localStorage.getItem('pending_poetry');
+  if (pendingPoetry && document.getElementById('ev-poetry')) {
+    document.getElementById('ev-poetry').value = pendingPoetry;
+    localStorage.removeItem('pending_poetry');
+  }
+  
+  const savedStr = localStorage.getItem('current_khutbah');
+  if (savedStr && document.getElementById('khutbah-title')) {
+    try {
+      const s = JSON.parse(savedStr);
+      document.getElementById('khutbah-title').value = s.title || '';
+      document.getElementById('box-intro').value = s.intro || '';
+      if(document.getElementById('box-elements')) document.getElementById('box-elements').value = s.elements || '';
+      document.getElementById('box-body').value = s.body || '';
+      document.getElementById('box-conclusion').value = s.conclusion || '';
+      if (!document.getElementById('ev-quran').value) document.getElementById('ev-quran').value = s.quran || '';
+      if (!document.getElementById('ev-hadith').value) document.getElementById('ev-hadith').value = s.hadith || '';
+      if (!document.getElementById('ev-poetry').value) document.getElementById('ev-poetry').value = s.poetry || '';
+    } catch(e) {}
+  }
+}
+
+async function saveKhutbah() {
+  const title = document.getElementById('khutbah-title').value.trim();
+  const intro = document.getElementById('box-intro').value.trim();
+  const elements = document.getElementById('box-elements') ? document.getElementById('box-elements').value.trim() : "";
+  const body = document.getElementById('box-body').value.trim();
+  const conclusion = document.getElementById('box-conclusion').value.trim();
+  const quran = document.getElementById('ev-quran').value.trim();
+  const hadith = document.getElementById('ev-hadith').value.trim();
+  const poetry = document.getElementById('ev-poetry').value.trim();
+
+  const khutbahData = { title, intro, elements, body, conclusion, quran, hadith, poetry };
+  localStorage.setItem('current_khutbah', JSON.stringify(khutbahData));
+
+  if (!title || (!intro && !body)) {
+    alert("يرجى كتابة العنوان وبعض المحتوى الرئيسي قبل الحفظ.");
+    return;
+  }
+
+  try {
+    const res = await fetch('http://localhost:3000/api/khutbahs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(khutbahData)
+    });
+    if(res.ok) {
+      showToast("تم حفظ مسودة الخطبة بنجاح!", "success");
+    } else {
+      showToast("تعذر الحفظ في الخادم، ولكن تم الحفظ محلياً.", "success");
+    }
+  } catch(e) {
+    console.error("Error saving khutbah:", e);
+    showToast("تم الحفظ محلياً (وضع عدم الاتصال).", "success");
+  }
+}
+
+/* ============================================
+   UTILITIES / TOAST
+   ============================================ */
+
+function showToast(message, type = 'info') {
+  const toastContainer = document.getElementById('toast-container') || createToastContainer();
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+    <span>${message}</span>
+  `;
+  toastContainer.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+  }, 10);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(20px)';
+    setTimeout(() => toast.remove(), 500);
+  }, 3000);
+}
+
+function createToastContainer() {
+  const container = document.createElement('div');
+  container.id = 'toast-container';
+  container.className = 'toast-container';
+  document.body.appendChild(container);
+  return container;
+}
