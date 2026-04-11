@@ -7,44 +7,55 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if (saved) document.documentElement.setAttribute('data-theme', saved);
+            else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
     <style>
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: var(--bg-page);
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0;
         }
         .login-card {
             width: 100%;
             max-width: 500px;
-            background: rgba(255, 255, 255, 0.9);
+            background: var(--bg-card);
             backdrop-filter: blur(10px);
             padding: 50px;
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
             text-align: center;
         }
         .login-logo {
             font-size: 2.5rem;
-            color: var(--primary);
+            color: var(--color-primary);
             margin-bottom: 20px;
         }
-        h2 { margin-bottom: 25px; color: var(--dark); }
+        h2 { margin-bottom: 25px; color: var(--color-text-primary); }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .form-group { text-align: right; margin-bottom: 15px; }
         .form-group.full { grid-column: span 2; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--color-text-primary); }
         .form-group input {
             width: 100%;
             padding: 10px;
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
+            background: var(--bg-input);
+            color: var(--color-text-primary);
             outline: none;
         }
-        .login-footer { margin-top: 25px; font-size: 0.9rem; color: var(--text-light); }
-        .login-footer a { color: var(--primary); font-weight: 700; }
+        .form-group input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(95, 168, 211, 0.1); }
+        .login-footer { margin-top: 25px; font-size: 0.9rem; color: var(--color-text-secondary); }
+        .login-footer a { color: var(--color-primary); font-weight: 700; }
     </style>
 </head>
 <body>

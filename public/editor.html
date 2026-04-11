@@ -172,15 +172,19 @@
     }
   </style>
 </head>
-<body class="light-mode">
+<body>
 
   <nav class="editor-navbar glass-nav">
     <div class="nav-logo" onclick="window.location.href='index.html#overview'" style="cursor:pointer">
       <i class="fas fa-microphone-alt"></i>
       <span>خطبة <small style="font-size: 0.6em; opacity: 0.7;">| المحرر</small></span>
     </div>
-    <div class="nav-actions">
-      <button class="btn-outline" onclick="window.location.href='index.html#overview'" style="margin-right: 10px;">إلغاء</button>
+    <div class="nav-actions" style="display: flex; align-items: center; gap: 15px;">
+      <button id="theme-toggle" class="btn-icon" onclick="toggleDarkMode()" aria-label="تبديل الوضع الداكن"
+        style="color: var(--color-text-primary); font-size: 1.25rem; background: none; border: none; cursor: pointer; padding: 5px; display: flex; align-items: center;">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="btn-outline" onclick="window.location.href='index.html#overview'">إلغاء</button>
       <button class="btn-primary" onclick="saveKhutbah()"><i class="fas fa-save"></i> حفظ المسودة</button>
     </div>
   </nav>
@@ -190,22 +194,42 @@
       <input type="text" id="khutbah-title" class="title-input" placeholder="عنوان الخطبة..." />
       
       <div class="editor-field-group">
-        <label class="field-label"><i class="fas fa-play-circle"></i> المقدمة</label>
+        <label class="field-label">
+          <span><i class="fas fa-play-circle"></i> المقدمة</span>
+          <button class="ai-btn-small" onclick="improveSpeechWithAI('box-intro')" title="تحسين بالذكاء الاصطناعي">
+            <i class="fas fa-magic"></i>
+          </button>
+        </label>
         <textarea id="box-intro" class="content-area" placeholder="ابدأ خطبتك بالاستفتاح والثناء..."></textarea>
       </div>
 
       <div class="editor-field-group">
-        <label class="field-label"><i class="fas fa-list-ul"></i> عناصر الخطبة</label>
+        <label class="field-label">
+          <span><i class="fas fa-list-ul"></i> عناصر الخطبة</span>
+          <button class="ai-btn-small" onclick="improveSpeechWithAI('box-elements')" title="تحسين بالذكاء الاصطناعي">
+            <i class="fas fa-magic"></i>
+          </button>
+        </label>
         <textarea id="box-elements" class="content-area" style="min-height: 100px;" placeholder="حدد العناصر الرئيسية التي ستتحدث عنها..."></textarea>
       </div>
 
       <div class="editor-field-group">
-        <label class="field-label"><i class="fas fa-paragraph"></i> صلب الموضوع</label>
+        <label class="field-label">
+          <span><i class="fas fa-paragraph"></i> صلب الموضوع</span>
+          <button class="ai-btn-small" onclick="improveSpeechWithAI('box-body')" title="تحسين بالذكاء الاصطناعي">
+            <i class="fas fa-magic"></i>
+          </button>
+        </label>
         <textarea id="box-body" class="content-area" style="min-height: 400px;" placeholder="اشرح العناصر بالتفصيل واستشهد بالأدلة..."></textarea>
       </div>
 
       <div class="editor-field-group">
-        <label class="field-label"><i class="fas fa-flag-checkered"></i> الخاتمة</label>
+        <label class="field-label">
+          <span><i class="fas fa-flag-checkered"></i> الخاتمة</span>
+          <button class="ai-btn-small" onclick="improveSpeechWithAI('box-conclusion')" title="تحسين بالذكاء الاصطناعي">
+            <i class="fas fa-magic"></i>
+          </button>
+        </label>
         <textarea id="box-conclusion" class="content-area" placeholder="أنهِ خطبتك بالتوصيات والدعاء..."></textarea>
       </div>
     </div>
@@ -302,27 +326,44 @@
       }, 2000);
     }
 
-    function generateAIEvidence() {
+    async function generateAIEvidence() {
       const title = document.getElementById('khutbah-title').value || "موضوع دعوي";
-      
-      // Mock AI Generation
       const btn = document.querySelector('[onclick="generateAIEvidence()"]');
       const originalText = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث...';
+      
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري اقتراح أدلة...';
       btn.disabled = true;
 
-      setTimeout(() => {
-        document.getElementById('ev-quran').value = "قال تعالى: {يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَقُولُوا قَوْلًا سَدِيدًا} [الأحزاب: 70]";
-        document.getElementById('ev-hadith').value = "قال رسول الله ﷺ: «إنما بعثت لأتمم مكارم الأخلاق» [رواه البخاري]";
-        document.getElementById('ev-poetry').value = "وإنما الأمم الأخلاق ما بقيت.. فإن هم ذهبت أخلاقهم ذهبوا";
+      try {
+        // We use common prompt to get structured evidences
+        const res = await fetch('/api/improve-speech', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            text: "يرجى اقتراح: 1. آية قرآنية 2. حديث نبوي 3. بيت شعر، لمخاطبة الناس في هذا الموضوع.", 
+            topic: title 
+          })
+        });
+        const data = await res.json();
         
+        if (data.improved) {
+          // Add to Body or show toast (simplified for now: just alert with results)
+          showToast("تم اقتراح أدلة جديدة! يمكنك مراجعة صلب الموضوع أو نسخها.", "success");
+          // Optionally append to textarea or separate field
+          document.getElementById('box-body').value += "\n\n--- أدلة مقترحة ---\n" + data.improved;
+        } else {
+          showToast("لم نتمكن من العثور على أدلة حالياً.", "error");
+        }
+      } catch (err) {
+        showToast("فشل الاتصال بخدمة الذكاء الاصطناعي.", "error");
+      } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
-        
         // Use window.opener to call showToast if possible, or just alert/style it
         alert("تم استخراج الأدلة المناسبة لموضوع الخطبة بنجاح ✨");
       }, 1500);
     }
   </script>
+  <script src="script.js"></script>
 </body>
 </html>

@@ -53,7 +53,7 @@
   --progress-bg: #e9ecef;
   --shadow-card: 0 2px 8px rgba(0,0,0,0.08);
   
-  --color-primary: #5FA8D3;
+  --color-primary: #5FA8D3; /* Original blue */
   --color-primary-hover: #3E7CA6;
 
   /* Legacy compatibility */
@@ -96,10 +96,11 @@
   --progress-bg: #333333;
   --shadow-card: 0 2px 8px rgba(0,0,0,0.4);
 
-  /* Legacy compatibility overrides */
-  --bg: var(--bg-page);
+  /* Legacy overrides */
+  --dark: #ffffff;
   --text: var(--color-text-primary);
   --text-light: var(--color-text-secondary);
+  --bg: var(--bg-page);
   --white: var(--bg-primary);
   --border: var(--border-color);
   --shadow-sm: var(--shadow-card);
@@ -169,6 +170,15 @@ button {
 
 input, textarea, select {
   font-family: 'theyeer', sans-serif;
+  background: var(--bg-input);
+  color: var(--color-text-primary);
+  border: 1px solid var(--border-color);
+  outline: none;
+  transition: var(--transition);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--color-text-muted);
 }
 
 ul {
@@ -224,8 +234,8 @@ img {
 }
 
 [data-theme="dark"] .navbar {
-  background: var(--bg-primary) !important;
-  border-bottom: 1px solid var(--border-color) !important;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .nav-container {
@@ -952,6 +962,40 @@ img {
   margin-bottom: 32px;
 }
 
+.ai-btn-small {
+  background: var(--bg-secondary);
+  color: var(--color-primary);
+  border: 1px solid var(--border-color);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.85rem;
+}
+
+.ai-btn-small:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-btn-small:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.field-label {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .about-list li {
   display: flex;
   align-items: center;
@@ -1164,19 +1208,16 @@ img {
 
 /* SIDEBAR */
 .sidebar {
-  width: var(--sidebar-width);
-  height: 100vh;
   background: var(--bg-sidebar);
   border-left: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
+  width: var(--sidebar-width);
+  height: 100vh;
   position: fixed;
-  right: 0;
   top: 0;
-  z-index: 200;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-y: auto;
+  right: 0;
+  z-index: 1100;
+  transition: var(--transition);
+  box-shadow: var(--shadow-lg);
 }
 
 .sidebar-header {
@@ -1480,11 +1521,11 @@ img {
 }
 
 .stat-card {
+  padding: 24px;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: 20px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 16px;
   box-shadow: var(--shadow-card);
   border: 1px solid var(--border-color);
@@ -2776,6 +2817,13 @@ img {
   color: white;
 }
 
+.footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 80px 0 30px;
+  color: var(--color-text-secondary);
+}
+
 .chatbot-messages {
   flex: 1;
   overflow-y: auto;
@@ -3598,6 +3646,18 @@ img {
   color: var(--dark) !important;
 }
 
+.feature-card {
+  padding: 40px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
 .lib-card {
   background: var(--white);
   border-radius: var(--radius-lg);
@@ -3653,7 +3713,7 @@ img {
 
 /* ABOUT SECTION - HORIZONTAL CARDS */
 .team-card-horizontal {
-  display: flex !important;
+  display: flex;
   background: var(--white);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -3661,6 +3721,18 @@ img {
   border: 1px solid var(--border);
   transition: var(--transition);
   margin-bottom: 20px;
+}
+
+.achievement-card {
+  padding: 24px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  transition: var(--transition);
+  opacity: 0.6;
+  filter: grayscale(1);
 }
 
 .team-card-horizontal:hover {
@@ -3755,4 +3827,18 @@ img {
 
 [data-theme="dark"] .btn-secondary {
   background: rgba(255, 255, 255, 0.05);
+}
+
+/* GLOBAL ICON FIX */
+.icon svg, .sidebar-icon svg, .nav-logo i, .feature-icon i {
+  fill: var(--color-text-secondary);
+  stroke: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .icon svg, 
+[data-theme="dark"] .sidebar-icon svg,
+[data-theme="dark"] .nav-logo i,
+[data-theme="dark"] .sidebar-item i {
+  fill: var(--color-text-primary) !important;
+  color: var(--color-text-primary) !important;
 }

@@ -321,8 +321,11 @@ function stopAndAnalyze() {
   toggleBtn.innerHTML = '<i class="fas fa-play"></i><span>تسجيل</span>';
   stopBtn.disabled = true;
 
+  // Get transcript from textarea
+  const transcript = document.getElementById("stt-textarea").value.trim();
+
   // Show analyzing state
-  showAnalysis();
+  showAnalysis(transcript);
 }
 
 /**
@@ -454,41 +457,129 @@ function stopWaveformAnimation() {
 }
 
 /**
- * Show fake analysis results
+ * Show real AI analysis results
  */
-function showAnalysis() {
+async function showAnalysis(transcript) {
   const badge = document.getElementById("analyzing-badge");
   badge.style.display = "flex";
+  
+  // If no transcript, use mock data or show warning
+  if (!transcript) {
+    showToast("لا يوجد نص للتحليل. قم بلصق نص الخطبة في المربع المخصص.", "error");
+    badge.style.display = "none";
+    return;
+  }
 
-  // Generate random scores
-  const speed = Math.floor(Math.random() * 30) + 60;
-  const clarity = Math.floor(Math.random() * 25) + 65;
-  const confidence = Math.floor(Math.random() * 30) + 55;
-  const overall = Math.floor((speed + clarity + confidence) / 3);
+  try {
+    const res = await fetch(getApiUrl('/api/analyze-speech'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript })
+    });
 
-  setTimeout(() => {
+    const data = await res.json();
     badge.style.display = "none";
 
-    // Update speed
-    animateMetric("speed", speed, getSpeedDesc(speed), getSpeedLabel(speed));
+    if (data.error) {
+      showToast("فشل تحليل النص. حاول مرة أخرى.", "error");
+      return;
+    }
 
-    // Update clarity
+    // Update Metrics
+    animateMetric("speed", data.speed, "سرعة إلقائك بناءً على النص المُقدم.", getSpeedLabel(data.speed));
     setTimeout(() => {
-      animateMetric("clarity", clarity, getClarityDesc(clarity), getClarityLabel(clarity));
+      animateMetric("clarity", data.clarity, "مدى وضوح الأفكار وترابطها في خطابك.", getClarityLabel(data.clarity));
     }, 200);
-
-    // Update confidence
     setTimeout(() => {
-      animateMetric("confidence", confidence, getConfidenceDesc(confidence), getConfidenceLabel(confidence));
+      animateMetric("confidence", data.confidence, "مستوى الثقة في اختيار الكلمات والأسلوب الخطابي.", getConfidenceLabel(data.confidence));
     }, 400);
 
-    // Show overall score
+    // Show overall score and AI summary
     setTimeout(() => {
-      showOverallScore(overall);
-      updateSessionCount();
-      saveProgressUpdate(overall); // Task 8: update progress
+      showOverallScore(data.overall, data.summary);
+      saveProgressUpdate(data.overall);
     }, 800);
-  }, 2000);
+
+    // Render Strengths & Improvements
+    renderFeedbackLists(data.strengths, data.improvements);
+
+  } catch (error) {
+    console.error("Analysis Error:", error);
+    badge.style.display = "none";
+    showToast("حدث خطأ أثناء الاتصال بخدمة التحليل الذكي.", "error");
+  }
+}
+
+function renderFeedbackLists(strengths, improvements) {
+  // Assuming these exist in HTML or we add them
+  const feedbackPanel = document.getElementById("feedback-panel");
+  
+  // Remove existing lists if any
+  const oldLists = feedbackPanel.querySelectorAll(".ai-feedback-lists");
+  oldLists.forEach(l => l.remove());
+  
+  const listsDiv = document.createElement("div");
+  listsDiv.className = "ai-feedback-lists";
+  listsDiv.style.marginTop = "20px";
+  listsDiv.innerHTML = `
+    <div style="margin-bottom: 15px;">
+      <h4 style="color: #66BB6A; margin-bottom: 8px;"><i class="fas fa-check-circle"></i> نقاط القوة</h4>
+      <ul style="padding-right: 20px; font-size: 0.9rem;">
+        ${strengths.map(s => `<li>${s}</li>`).join('')}
+      </ul>
+    </div>
+    <div>
+      <h4 style="color: #FF8C69; margin-bottom: 8px;"><i class="fas fa-lightbulb"></i> مقترحات للتحسين</h4>
+      <ul style="padding-right: 20px; font-size: 0.9rem;">
+        ${improvements.map(i => `<li>${i}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+  feedbackPanel.appendChild(listsDiv);
+}
+
+// Helper labels
+function getSpeedLabel(v) { return v > 80 ? "ممتاز" : v > 60 ? "جيد" : "يحتاج هدوء"; }
+function getClarityLabel(v) { return v > 80 ? "بليغة" : v > 60 ? "واضحة" : "تحتاج تبسيط"; }
+function getConfidenceLabel(v) { return v > 80 ? "خطيب مفوه" : v > 60 ? "واثق" : "تحتاج تدريب"; }
+
+/**
+ * AI Improve Transcription
+ */
+async function improveTranscription() {
+  const textarea = document.getElementById("stt-textarea");
+  const text = textarea.value.trim();
+  const btn = document.querySelector(".ai-improve-action button");
+
+  if (!text || text.length < 10) {
+    showToast("يرجى إدخال نص كافٍ للتحسين (أكثر من 10 أحرف)", "error");
+    return;
+  }
+
+  const originalHTML = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحسين...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(getApiUrl('/api/improve-speech'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    
+    if (data.improved) {
+      textarea.value = data.improved;
+      showToast("تم تحسين النص واقتراح أدلة جديدة بنجاح! ✨", "success");
+    } else {
+      showToast("لم نتمكن من تحسين النص.", "error");
+    }
+  } catch (err) {
+    showToast("تعذر الاتصال بخدمة التحسين.", "error");
+  } finally {
+    btn.innerHTML = originalHTML;
+    btn.disabled = false;
+  }
 }
 
 /**
@@ -540,7 +631,7 @@ function animateMetric(name, value, description, label) {
 /**
  * Show the overall score card
  */
-function showOverallScore(score) {
+function showOverallScore(score, summary) {
   const scoreCard = document.getElementById("overall-score");
   const scoreNumber = document.getElementById("score-number");
   const scoreTitle = document.getElementById("score-title");
@@ -550,7 +641,7 @@ function showOverallScore(score) {
 
   // Animate number
   let current = 0;
-  const step = score / 40;
+  const step = Math.max(1, score / 40);
   const timer = setInterval(() => {
     current += step;
     if (current >= score) {
@@ -1507,6 +1598,11 @@ function sendQuickReply(text) {
 /**
  * Send a chat message
  */
+/**
+ * Send a chat message
+ */
+let chatHistoryList = [];
+
 async function sendChatMessage() {
   const input = document.getElementById("chatbot-input");
   const text = input.value.trim();
@@ -1516,27 +1612,38 @@ async function sendChatMessage() {
   // Add user message
   addMessage(text, "user");
   input.value = "";
-
-  // Show typing indicator
+  
   showTyping();
+  scrollChatToBottom();
 
   try {
-    const headers = { 'Content-Type': 'application/json' };
-
-    const res = await fetch('http://localhost:3000/api/chat', {
+    const res = await fetch(getApiUrl('/api/chat'), {
       method: 'POST',
-      headers,
-      body: JSON.stringify({ message: text })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        message: text, 
+        history: chatHistoryList 
+      })
     });
-    
-    if (!res.ok) throw new Error("API Error");
-    
+
     const data = await res.json();
+    
     hideTyping();
-    addMessage(data.reply, "bot");
+    
+    if (data.reply) {
+      addMessage(data.reply, "bot");
+      // Update history
+      chatHistoryList.push({ role: "user", parts: [{ text: text }] });
+      chatHistoryList.push({ role: "model", parts: [{ text: data.reply }] });
+      if (chatHistoryList.length > 20) chatHistoryList = chatHistoryList.slice(-20);
+      scrollChatToBottom();
+    } else {
+      addMessage("عذراً، حدث خطأ في معالجة الرد.", "bot");
+    }
   } catch (error) {
     hideTyping();
-    addMessage("عذراً، حدث خطأ في الاتصال بالخادم. حاول لاحقاً.", "bot");
+    addMessage("تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.", "bot");
+    console.error("Chat Error:", error);
   }
 }
 
@@ -1888,15 +1995,6 @@ const progressObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.2 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const showcase = document.querySelector('.progress-showcase');
-  if (showcase) progressObserver.observe(showcase);
-  
-  // Initial Library Load
-  if (typeof loadLibraryCategory === 'function') {
-    loadLibraryCategory('books');
-  }
-});
 
 async function loadLibraryCategory(category) {
   document.querySelectorAll('.lib-tab').forEach(tab => tab.classList.remove('active'));
@@ -1939,6 +2037,54 @@ function renderLibraryData(items) {
     `;
   });
 }
+
+// ============================================
+// THEME MANAGEMENT (DARK MODE)
+// ============================================
+
+/**
+ * Initialize theme based on preference or system settings
+ */
+function initTheme() {
+  const root = document.documentElement;
+  const saved = localStorage.getItem('theme');
+  
+  if (saved) {
+    root.setAttribute('data-theme', saved);
+    updateThemeIcon(saved);
+  } else {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = prefersDark ? 'dark' : 'light';
+    root.setAttribute('data-theme', theme);
+    updateThemeIcon(theme);
+  }
+}
+
+/**
+ * Toggle between light and dark themes
+ */
+function toggleDarkMode() {
+  const root = document.documentElement;
+  const current = root.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeIcon(next);
+}
+
+/**
+ * Update the theme toggle icon
+ */
+function updateThemeIcon(theme) {
+  const icons = document.querySelectorAll('#theme-toggle-landing i, .theme-toggle i, #theme-toggle i');
+  icons.forEach(icon => {
+    icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+  });
+}
+
+// Initialize on load
+initTheme();
 
 window.sendToEditor = function(type, text) {
   let storageKey = 'pending_poetry'; 
@@ -2059,55 +2205,6 @@ function initScrollAnimations() {
 /**
  * Show a toast notification
  */
-function showToast(message, type = "info") {
-  const existing = document.querySelector(".toast");
-  if (existing) existing.remove();
-
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    background: ${type === "error" ? "#EF5350" : type === "success" ? "#66BB6A" : "#1F3C5A"};
-    color: white;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 0.88rem;
-    font-weight: 500;
-    font-family: 'Tajawal', sans-serif;
-    z-index: 9999;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    animation: slideInToast 0.4s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    max-width: 300px;
-    direction: rtl;
-  `;
-
-  const icons = { error: "fa-times-circle", success: "fa-check-circle", info: "fa-info-circle" };
-  toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i> ${message}`;
-
-  // Add animation style
-  const style = document.createElement("style");
-  style.textContent = `
-    @keyframes slideInToast {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
-
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transform = "translateY(16px)";
-    toast.style.transition = "all 0.4s ease";
-    setTimeout(() => toast.remove(), 400);
-  }, 3000);
-}
 
 // ============================================
 // FAKE DATA UPDATES
@@ -2213,6 +2310,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Initial Library Load
+  if (typeof loadLibraryCategory === 'function') {
+    loadLibraryCategory('books');
+  }
+
   console.log("🕌 Khotba Platform initialized successfully!");
   console.log("📚 Use showPage('dashboard-page') to navigate to dashboard");
   console.log("🤖 Chatbot is ready at bottom-left corner");
@@ -2239,37 +2341,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-/* ---------- TAB NAVIGATION ---------- */
-
-// Theme Management Logic
-const initTheme = () => {
-  const root = document.documentElement;
-  const saved = localStorage.getItem('theme');
-  
-  if (saved) {
-    root.setAttribute('data-theme', saved);
-  } else {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-  }
-};
-
-// Calling init on load
-initTheme();
-
-function toggleDarkMode() {
-  const root = document.documentElement;
-  const current = root.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  root.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-  
-  // Update icon if needed (handled by CSS usually, but for consistency)
-  const icon = document.querySelector('#theme-toggle-landing i, .theme-toggle i');
-  if (icon) {
-    icon.className = next === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-  }
-}
 
 /* ============================================
    EDITOR LOGIC
@@ -2345,34 +2416,14 @@ async function saveKhutbah() {
   }
 }
 
-/* ============================================
-   UTILITIES / TOAST
-   ============================================ */
 
-function showToast(message, type = 'info') {
-  const toastContainer = document.getElementById('toast-container') || createToastContainer();
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
-    <span>${message}</span>
-  `;
-  toastContainer.appendChild(toast);
-  setTimeout(() => {
-    toast.style.opacity = '1';
-    toast.style.transform = 'translateY(0)';
-  }, 10);
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(20px)';
-    setTimeout(() => toast.remove(), 500);
-  }, 3000);
-}
-
-function createToastContainer() {
-  const container = document.createElement('div');
-  container.id = 'toast-container';
-  container.className = 'toast-container';
-  document.body.appendChild(container);
-  return container;
+/**
+ * Helper to get the absolute API URL if running on a different port (e.g., Live Server)
+ */
+function getApiUrl(endpoint) {
+  const BACKEND_PORT = 3000;
+  if (window.location.port && window.location.port !== BACKEND_PORT.toString() && window.location.hostname === 'localhost') {
+    return `http://localhost:${BACKEND_PORT}${endpoint}`;
+  }
+  return endpoint;
 }

@@ -54,14 +54,14 @@ app.post('/api/user/progress', authenticate, (req, res) => {
         kpi_score = COALESCE(?, kpi_score),
         achievements_data = COALESCE(?, achievements_data)
     WHERE user_id = ?
-  `, [sessions_count, kpi_score, achievements_data ? JSON.stringify(achievements_data) : null, req.userId], function(err) {
+  `, [sessions_count, kpi_score, achievements_data ? JSON.stringify(achievements_data) : null, req.userId], function (err) {
     if (err) return res.status(500).json({ error: 'Failed to update progress' });
-    
+
     // Optionally update user level if sessions/kpi is high enough
     if (sessions_count > 10) {
       db.run("UPDATE users SET level = 'متوسط' WHERE id = ?", [req.userId]);
     }
-    
+
     res.json({ success: true });
   });
 });
@@ -80,7 +80,7 @@ app.post('/api/khutbahs', authenticate, (req, res) => {
   const { title, content } = req.body;
   if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
 
-  db.run("INSERT INTO khutbahs (user_id, title, content) VALUES (?, ?, ?)", [req.userId, title, content], function(err) {
+  db.run("INSERT INTO khutbahs (user_id, title, content) VALUES (?, ?, ?)", [req.userId, title, content], function (err) {
     if (err) return res.status(500).json({ error: 'Failed to save khutbah' });
     res.json({ id: this.lastID, success: true });
   });
@@ -101,9 +101,9 @@ app.post('/api/chat', authenticate, async (req, res) => {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini", // fallback to mini for speed
       messages: [
-        { 
-          role: "system", 
-          content: "أنت مساعد ذكي لمنصة منبر لتدريب الدعاة. تصرف كخبير في الدعوة الإسلامية والعقيدة. أجب باللغة العربية بأسلوب حكيم ولطيف ومشجع، وساعد الطالب في الرد على الشبهات أو تعلم الخطابة." 
+        {
+          role: "system",
+          content: "أنت مساعد ذكي لمنصة منبر لتدريب الدعاة. تصرف كخبير في الدعوة الإسلامية والعقيدة. أجب باللغة العربية بأسلوب حكيم ولطيف ومشجع، وساعد الطالب في الرد على الشبهات أو تعلم الخطابة."
         },
         { role: "user", content: message }
       ],
