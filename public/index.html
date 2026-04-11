@@ -5,6 +5,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>خطبة – منصة تدريب الدعاة</title>
+  <meta name="description" content="منصة تدريب الدعاة الأولى - طوّر مهاراتك في الخطابة والوعظ باستخدام تقنيات الذكاء الاصطناعي، التحليل الصوتي، وسيناريوهات تفاعلية." />
+  <meta name="keywords" content="تدريب الدعاة، الخطابة، الذكاء الاصطناعي، فن الإلقاء، منصة خطبة، إسلامية" />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="خطبة – منصة تدريب الدعاة" />
+  <meta property="og:description" content="طوّر مهاراتك الدعوية بذكاء واحترافية عبر منصة خطبة التعليمية." />
+  <meta property="og:image" content="https://khotba.app/images/hero-speaker.png" />
+  <meta property="og:url" content="https://khotba.app" />
+  <meta name="twitter:card" content="summary_large_image" />
+
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
@@ -26,8 +36,9 @@
         </div>
         <ul class="nav-links">
           <li><a href="#" onclick="scrollToSection('features')">المميزات</a></li>
+          <li><a href="how-it-works.html">كيف يعمل؟</a></li>
           <li><a href="#" onclick="scrollToSection('about')">عن المنصة</a></li>
-          <li><a href="#" onclick="scrollToSection('contact')">تواصل معنا</a></li>
+          <li><a href="https://wa.me/1234567890" target="_blank">تواصل معنا</a></li>
         </ul>
         <div class="nav-actions">
           <button id="theme-toggle-landing" class="btn-icon" onclick="toggleDarkMode()" title="تبديل الوضع الليلي"
@@ -42,8 +53,9 @@
       </div>
       <div class="mobile-menu" id="mobile-menu">
         <a href="#">المميزات</a>
+        <a href="how-it-works.html">كيف يعمل؟</a>
         <a href="#">عن المنصة</a>
-        <a href="#">تواصل معنا</a>
+        <a href="https://wa.me/1234567890" target="_blank">تواصل معنا</a>
         <button class="btn-primary" onclick="showPage('dashboard-page')">ابدأ الآن</button>
       </div>
     </nav>
@@ -69,31 +81,31 @@
             <i class="fas fa-play"></i>
             ابدأ الآن
           </button>
-          <button class="btn-ghost btn-large" onclick="showDemoVideo()">
+          <button class="btn-secondary btn-large" onclick="window.location.href='how-it-works.html'">
             <i class="fas fa-circle-play"></i>
             شاهد كيف يعمل
           </button>
         </div>
         <div class="hero-stats">
           <div class="stat-item">
-            <span class="stat-number" data-target="1200">0</span>
+            <span class="stat-number" data-target="1200">1,200</span>
             <span class="stat-label">داعية مسجّل</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-number" data-target="350">0</span>
+            <span class="stat-number" data-target="350">350</span>
             <span class="stat-label">جلسة تدريبية</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-number" data-target="98">0</span>
+            <span class="stat-number" data-target="98">98</span>
             <span class="stat-label">% رضا المستخدمين</span>
           </div>
         </div>
       </div>
       <div class="hero-visual">
         <div class="hero-image-wrapper floating">
-          <img src="images/hero-speaker.png" alt="داعية يخطب من المنبر"
+          <img src="images/hero-speaker.jpg" alt="داعية يخطب من المنبر"
             onerror="this.src='https://images.unsplash.com/photo-1590076214667-cda9e7b6c522?auto=format&fit=crop&q=80&w=800'" />
         </div>
         <div class="floating-icon fi-1" style="position: absolute; top: 12%; right: 4%; z-index: 5;">
@@ -213,7 +225,49 @@
       </div>
     </section>
 
-    <!-- FOOTER -->
+    <!-- TESTIMONIALS SECTION -->
+    <section class="testimonials" id="testimonials" style="padding: 100px 20px; background: var(--bg);">
+      <div class="section-header">
+        <span class="section-tag">قالوا عن خطبة</span>
+        <h2>نجاحات ملهمة</h2>
+        <p>انضم إلى آلاف الدعاة الذين طوروا مهاراتهم عبر منصتنا</p>
+      </div>
+      <div class="testimonials-grid" style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+        <div class="testimonial-card glass-box" style="padding: 30px; background: white !important;">
+          <div class="stars" style="color: #FFD700; margin-bottom: 15px;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p style="font-style: italic; margin-bottom: 20px; line-height: 1.8;">"بفضل التحليل الصوتي الدقيق، تمكنت من ملاحظة سرعة إلقائي وتصحيحها في وقت قياسي. المنصة نقلة نوعية في تدريب الدعاة."</p>
+          <div class="user" style="display: flex; align-items: center; gap: 15px;">
+            <div class="avatar" style="width: 50px; height: 50px; border-radius: 50%; background: var(--primary); display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">م</div>
+            <div>
+              <h4 style="margin: 0;">محمد الحسن</h4>
+              <small style="color: var(--text-light);">إمام وخطيب</small>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card glass-box" style="padding: 30px; background: white !important;">
+          <div class="stars" style="color: #FFD700; margin-bottom: 15px;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p style="font-style: italic; margin-bottom: 20px; line-height: 1.8;">"سيناريوهات المواقف الشائكة ساعدتني كثيراً في التعامل مع التساؤلات العصرية بحكمة وهدوء. أنصح كل طالب علم بالانضمام."</p>
+          <div class="user" style="display: flex; align-items: center; gap: 15px;">
+            <div class="avatar" style="width: 50px; height: 50px; border-radius: 50%; background: var(--secondary); display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">س</div>
+            <div>
+              <h4 style="margin: 0;">سارة راشد</h4>
+              <small style="color: var(--text-light);">داعية ومحاضرة</small>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card glass-box" style="padding: 30px; background: white !important;">
+          <div class="stars" style="color: #FFD700; margin-bottom: 15px;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p style="font-style: italic; margin-bottom: 20px; line-height: 1.8;">"سهولة الاستخدام والذكاء الاصطناعي في اقتراح الأدلة جعل تحضير الخطب أسرع وأكثر شمولية. شكراً للقائمين على هذا المشروع."</p>
+          <div class="user" style="display: flex; align-items: center; gap: 15px;">
+            <div class="avatar" style="width: 50px; height: 50px; border-radius: 50%; background: #48D1CC; display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">ي</div>
+            <div>
+              <h4 style="margin: 0;">يوسف عبدالله</h4>
+              <small style="color: var(--text-light);">طالب علم شرعي</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <footer class="footer"
       style="background: #000000; color: #ffffff; padding: 60px 20px 20px; font-family: 'theyeer', sans-serif; position: relative;">
       <div class="footer-content"
@@ -244,13 +298,13 @@
         </div>
         <div class="footer-links" style="display:flex; flex-direction:column; gap:10px;">
           <h4 style="color:white; font-size:1.1rem; margin-bottom:15px;">الدعم والاستفسارات</h4>
-          <a href="#"
+          <a href="faq.html"
             style="color:#ccc; text-decoration:none; font-size:0.95rem; display:block; padding:5px 0; transition:color 0.2s;">الأسئلة
             الشائعة</a>
-          <a href="#"
+          <a href="privacy.html"
             style="color:#ccc; text-decoration:none; font-size:0.95rem; display:block; padding:5px 0; transition:color 0.2s;">سياسة
             الخصوصية</a>
-          <a href="#"
+          <a href="terms.html"
             style="color:#ccc; text-decoration:none; font-size:0.95rem; display:block; padding:5px 0; transition:color 0.2s;">الشروط
             والأحكام</a>
         </div>
@@ -262,7 +316,7 @@
             style="display:flex; overflow:hidden; border-radius:8px; border: 1px solid #444;">
             <input type="email" placeholder="أدخل بريدك الإلكتروني... "
               style="padding:12px 15px; border:none; outline:none; flex:1; direction:rtl; background: #222; color: #fff;" />
-            <button style="border:none; background:var(--primary); color:white; padding:0 20px; cursor:pointer;"><i
+            <button onclick="subscribeNewsletter(event)" style="border:none; background:var(--primary); color:white; padding:0 20px; cursor:pointer;"><i
                 class="fas fa-paper-plane"></i></button>
           </div>
         </div>
@@ -401,6 +455,9 @@
               <a href="#"
                 style="display: block; padding: 10px; color: var(--dark); text-decoration: none; font-size: 0.9rem; transition: 0.2s;"><i
                   class="fas fa-cog" style="width:20px;"></i> الإعدادات</a>
+              <a href="#" onclick="handleLogout()"
+                style="display: block; padding: 10px; color: #EF5350; text-decoration: none; font-size: 0.9rem; transition: 0.2s;"><i
+                  class="fas fa-sign-out-alt" style="width:20px;"></i> تسجيل الخروج</a>
             </div>
           </div>
         </div>

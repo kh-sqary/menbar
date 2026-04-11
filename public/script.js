@@ -11,6 +11,15 @@
  * Show a specific page by ID, hide all others
  */
 function showPage(pageId) {
+  // Auth check for dashboard
+  if (pageId === "dashboard-page") {
+    const isAuth = localStorage.getItem('minbar_auth');
+    if (!isAuth) {
+      window.location.href = 'login.html';
+      return;
+    }
+  }
+
   const pages = document.querySelectorAll(".page");
   pages.forEach((page) => page.classList.remove("active"));
 
@@ -25,6 +34,7 @@ function showPage(pageId) {
     setTimeout(() => {
       animateKPIBars();
       initScenarios();
+      updateDashboardNumbers(); // Task 8: Dynamic numbers
     }, 300);
   }
 
@@ -316,19 +326,81 @@ function stopAndAnalyze() {
 }
 
 /**
- * Handle STT and AI logic
+ * Handle newsletter subscription
  */
-function improveTranscription() {
-  const panel = document.getElementById('stt-panel');
-  if (!panel) return;
+function subscribeNewsletter(event) {
+  if (event) event.preventDefault();
+  const input = document.querySelector('.newsletter-input input');
+  const email = input.value;
   
-  const originalText = panel.innerText;
-  panel.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحليل والتحسين بالذكاء الاصطناعي...';
+  if (!email || !email.includes('@')) {
+    showToast("يرجى إدخال بريد إلكتروني صحيح", "error");
+    return;
+  }
+  
+  const btn = document.querySelector('.newsletter-input button');
+  const originalIcon = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  btn.disabled = true;
   
   setTimeout(() => {
-    panel.innerHTML = originalText + " [تم تحسين النص: إضافة علامات ترقيم، تصحيح مخارج الحروف، وتدقيق لغوي]";
-    showToast("تم تحسين النص بنجاح ✨", "success");
+    showToast("تم الاشتراك في النشرة بنجاح! 🎉", "success");
+    input.value = '';
+    btn.innerHTML = originalIcon;
+    btn.disabled = false;
+  }, 1500);
+}
+
+/**
+ * Handle consultation form submission
+ */
+function submitConsultation(event) {
+  event.preventDefault();
+  
+  const form = document.getElementById("consultation-form");
+  const btn = form.querySelector('button[type="submit"]');
+  const originalText = btn.innerHTML;
+  
+  // Basic validation
+  const name = document.getElementById('cons-name').value;
+  const topic = document.getElementById('cons-topic').value;
+  
+  if (name.length < 3 || topic.length < 10) {
+    showToast("يرجى إكمال البيانات بشكل صحيح", "error");
+    return;
+  }
+  
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+  btn.disabled = true;
+  
+  // Simulate API call to FormSubmit or similar
+  setTimeout(() => {
+    showToast("تم إرسال طلب الاستشارة بنجاح! سنتواصل معك قريباً.", "success");
+    form.reset();
+    btn.innerHTML = originalText;
+    btn.disabled = false;
   }, 2000);
+}
+
+/**
+ * Show a toast notification
+ */
+function showToast(message, type = "info") {
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <div class="toast-content">
+      <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+      <span>${message}</span>
+    </div>
+  `;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.classList.add("show"), 100);
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
 }
 
 /**
@@ -396,8 +468,42 @@ function showAnalysis() {
     setTimeout(() => {
       showOverallScore(overall);
       updateSessionCount();
+      saveProgressUpdate(overall); // Task 8: update progress
     }, 800);
   }, 2000);
+}
+
+/**
+ * Task 8: Dynamic Dashboard Numbers
+ */
+function updateDashboardNumbers() {
+    const sessionsEl = document.getElementById('sessions-count');
+    const progressEl = document.querySelector('.stat-card:nth-child(3) .stat-card-value');
+    
+    // Get from storage or use defaults
+    const sessions = localStorage.getItem('minbar_sessions') || "24";
+    const avgProgress = localStorage.getItem('minbar_avg_progress') || "72";
+    
+    if(sessionsEl) sessionsEl.textContent = sessions;
+    if(progressEl) progressEl.textContent = avgProgress + "%";
+}
+
+function saveProgressUpdate(score) {
+    let sessions = parseInt(localStorage.getItem('minbar_sessions') || "24");
+    sessions++;
+    localStorage.setItem('minbar_sessions', sessions);
+    
+    // Simple moving average for progress
+    let avg = parseInt(localStorage.getItem('minbar_avg_progress') || "72");
+    avg = Math.round((avg + score) / 2);
+    localStorage.setItem('minbar_avg_progress', avg);
+    
+    updateDashboardNumbers();
+}
+
+function handleLogout() {
+    localStorage.removeItem('minbar_auth');
+    window.location.href = 'index.html';
 }
 
 /**

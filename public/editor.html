@@ -229,6 +229,10 @@
           <textarea id="ev-poetry" class="evidence-area" placeholder="أبيات شعرية أو حكم..."></textarea>
         </div>
 
+        <button class="btn-primary btn-full" style="width: 100%; margin-top: 10px;" onclick="generateAIEvidence()">
+          <i class="fas fa-magic"></i> اقتراح أدلة بالذكاء الاصطناعي
+        </button>
+
         <button class="btn-outline btn-full" style="width: 100%; margin-top: 20px;" onclick="window.location.href='khutbah-view.html'">
           <i class="fas fa-eye"></i> استعراض كخطبة
         </button>
@@ -296,6 +300,28 @@
         btn.innerHTML = originalText;
         btn.style.background = '';
       }, 2000);
+    }
+
+    function generateAIEvidence() {
+      const title = document.getElementById('khutbah-title').value || "موضوع دعوي";
+      
+      // Mock AI Generation
+      const btn = document.querySelector('[onclick="generateAIEvidence()"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        document.getElementById('ev-quran').value = "قال تعالى: {يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَقُولُوا قَوْلًا سَدِيدًا} [الأحزاب: 70]";
+        document.getElementById('ev-hadith').value = "قال رسول الله ﷺ: «إنما بعثت لأتمم مكارم الأخلاق» [رواه البخاري]";
+        document.getElementById('ev-poetry').value = "وإنما الأمم الأخلاق ما بقيت.. فإن هم ذهبت أخلاقهم ذهبوا";
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Use window.opener to call showToast if possible, or just alert/style it
+        alert("تم استخراج الأدلة المناسبة لموضوع الخطبة بنجاح ✨");
+      }, 1500);
     }
   </script>
 </body>
