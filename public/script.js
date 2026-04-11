@@ -2277,6 +2277,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Start scroll animations
   initScrollAnimations();
 
+  // Animate progress bar values
+  const showcase = document.querySelector('.progress-showcase');
+  if (showcase) progressObserver.observe(showcase);
+
   // Animate counters
   animateCounters();
 
