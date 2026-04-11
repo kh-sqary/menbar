@@ -9,22 +9,25 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body {
-      background: #f4f6f8;
+      background: var(--bg-page);
       display: flex;
       flex-direction: column;
       min-height: 100vh;
       font-family: 'Tajawal', sans-serif;
+      color: var(--color-text-primary);
+      transition: var(--transition);
     }
     .topbar {
       position: relative;
       width: 100%;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-card);
       z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: white;
+      background: var(--bg-primary);
       padding: 15px 30px;
+      border-bottom: 1px solid var(--border-color);
     }
     .document-wrapper {
       flex: 1;
@@ -32,19 +35,19 @@
       max-width: 900px;
       width: 100%;
       margin: 20px auto;
-      background: white;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      background: var(--bg-card);
+      box-shadow: var(--shadow-card);
       border-radius: 12px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-color);
     }
     
     .khutbah-title {
       text-align: center;
       font-size: 2.5rem;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--color-primary);
       margin-bottom: 20px;
-      border-bottom: 2px solid var(--border);
+      border-bottom: 2px solid var(--border-color);
       padding-bottom: 15px;
     }
     
@@ -54,7 +57,7 @@
     
     .khutbah-section-title {
       font-size: 1.3rem;
-      color: var(--secondary);
+      color: var(--color-primary-hover);
       margin-bottom: 15px;
       display: flex;
       align-items: center;
@@ -66,49 +69,51 @@
       font-family: 'Amiri', serif;
       font-size: 1.4rem;
       line-height: 2.2;
-      color: #333;
+      color: var(--color-text-secondary);
       text-align: justify;
       white-space: pre-wrap;
     }
     
     .evidence-box {
-      background: #fdfdfd;
-      border-right: 4px solid var(--primary);
+      background: var(--bg-secondary);
+      border-right: 4px solid var(--color-primary);
       padding: 15px 20px;
       margin-bottom: 15px;
       border-radius: 4px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      box-shadow: var(--shadow-card);
     }
     
     .evidence-type {
       font-family: 'Tajawal', sans-serif;
       font-size: 0.95rem;
       font-weight: 700;
-      color: var(--dark);
+      color: var(--color-text-primary);
       margin-bottom: 8px;
     }
     
     .evidence-content {
       font-family: 'Amiri', serif;
       font-size: 1.35rem;
-      color: #222;
+      color: var(--color-text-primary);
       line-height: 1.9;
       white-space: pre-wrap;
     }
     
     @media print {
-      body { background: white; }
+      body { background: white !important; color: black !important; }
       .topbar { display: none !important; }
       .document-wrapper {
-        box-shadow: none;
-        border: none;
-        padding: 0;
-        margin: 0;
-        max-width: 100%;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        background: white !important;
       }
-      .khutbah-title { font-size: 2rem; color: #000; }
-      .khutbah-section-title { color: #000; }
-      .evidence-box { border-color: #555; }
+      .khutbah-title { font-size: 2rem; color: #000 !important; }
+      .khutbah-section-title { color: #000 !important; }
+      .evidence-box { border-color: #555 !important; background: white !important; }
+      .khutbah-text, .evidence-content { color: black !important; }
     }
   </style>
 </head>
@@ -165,6 +170,19 @@
   </div>
 
   <script>
+    // Theme Management Logic
+    const initTheme = () => {
+      const root = document.documentElement;
+      const saved = localStorage.getItem('theme');
+      if (saved) {
+        root.setAttribute('data-theme', saved);
+      } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+      }
+    };
+    initTheme();
+
     document.addEventListener("DOMContentLoaded", () => {
       const dataStr = localStorage.getItem('current_khutbah');
       if (dataStr) {

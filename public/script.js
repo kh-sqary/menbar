@@ -361,25 +361,43 @@ function submitConsultation(event) {
   const btn = form.querySelector('button[type="submit"]');
   const originalText = btn.innerHTML;
   
-  // Basic validation
+  // Extract values
   const name = document.getElementById('cons-name').value;
+  const age = document.getElementById('cons-age').value;
+  const phone = document.getElementById('cons-phone').value;
+  const mosque = document.getElementById('cons-mosque').value;
   const topic = document.getElementById('cons-topic').value;
   
+  // Basic validation
   if (name.length < 3 || topic.length < 10) {
     showToast("يرجى إكمال البيانات بشكل صحيح", "error");
     return;
   }
   
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحويل...';
   btn.disabled = true;
   
-  // Simulate API call to FormSubmit or similar
+  // Format Message for WhatsApp
+  const whatsappNumber = "+201125195847";
+  const message = `*طلب استشارة جديدة - منصة خطبة*%0A%0A` +
+                  `*الاسم:* ${name}%0A` +
+                  `*السن:* ${age}%0A` +
+                  `*الهاتف:* ${phone}%0A` +
+                  `*المسجد:* ${mosque}%0A%0A` +
+                  `*الاستشارة:*%0A${topic}`;
+  
+  const waUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+  
   setTimeout(() => {
-    showToast("تم إرسال طلب الاستشارة بنجاح! سنتواصل معك قريباً.", "success");
-    form.reset();
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-  }, 2000);
+    showToast("تم تجهيز الاستشارة! سيتم تحويلك الآن إلى واتساب.", "success");
+    
+    setTimeout(() => {
+      window.open(waUrl, '_blank');
+      form.reset();
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }, 1500);
+  }, 1000);
 }
 
 /**
@@ -2221,18 +2239,35 @@ document.addEventListener('click', (e) => {
   }
 });
 
-/* ============================================
-   DARK MODE TOGGLE
-   ============================================ */
+/* ---------- TAB NAVIGATION ---------- */
+
+// Theme Management Logic
+const initTheme = () => {
+  const root = document.documentElement;
+  const saved = localStorage.getItem('theme');
+  
+  if (saved) {
+    root.setAttribute('data-theme', saved);
+  } else {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  }
+};
+
+// Calling init on load
+initTheme();
 
 function toggleDarkMode() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  if (isDark) {
-    document.documentElement.removeAttribute('data-theme');
-    localStorage.setItem('theme', 'light');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark');
+  const root = document.documentElement;
+  const current = root.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  
+  // Update icon if needed (handled by CSS usually, but for consistency)
+  const icon = document.querySelector('#theme-toggle-landing i, .theme-toggle i');
+  if (icon) {
+    icon.className = next === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
   }
 }
 
