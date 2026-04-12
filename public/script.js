@@ -6,9 +6,15 @@
 /* ============================================
    GOOGLE GEMINI API INTEGRATION
    ============================================ */
-const GEMINI_API_KEY = "AIzaSyCqfrxBXx9UxE3efeB0owEtpu8neudHD7w";
+const GEMINI_API_KEY = "AIzaSyA8Sd80TagKhYg-Nyemejjbh93OyCD6Ddc";
 
 async function callGemini(promptOrHistory, systemContext = "") {
+  const now = Date.now();
+  if (window._lastGeminiCall && now - window._lastGeminiCall < 3000) {
+    throw new Error('برجاء الانتظار قليلاً قبل إرسال رسالة جديدة');
+  }
+  window._lastGeminiCall = now;
+
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
   
   // Handle string format or array history format
