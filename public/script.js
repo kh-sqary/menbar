@@ -9,7 +9,7 @@
 const GEMINI_API_KEY = "AIzaSyCqfrxBXx9UxE3efeB0owEtpu8neudHD7w";
 
 async function callGemini(promptOrHistory, systemContext = "") {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
   
   // Handle string format or array history format
   const contents = Array.isArray(promptOrHistory) 
