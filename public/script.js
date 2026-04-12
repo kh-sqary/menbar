@@ -1883,45 +1883,39 @@ function toggleAuthMode() {
 async function handleAuthSubmit(e) {
   e.preventDefault();
   const username = document.getElementById("auth-username").value;
-  const password = document.getElementById("auth-password").value;
-  const errorEl = document.getElementById("auth-error");
-  
+  // Mock authentication successfully
   try {
-    const res = await fetch(`http://localhost:3000/api/auth/${currentAuthMode}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-    
-    if (res.ok) {
-      localStorage.setItem('minbar_token', data.token);
-      localStorage.setItem('minbar_user', data.username);
-      closeAuthModal();
-      showToast("تم " + (currentAuthMode === 'login' ? "تسجيل الدخول" : "الاشتراك") + " بنجاح!", "success");
-      loadUserProgress();
-      showPage('dashboard-page');
-    } else {
-      errorEl.textContent = data.error || 'حدث خطأ';
-      errorEl.style.display = "block";
-    }
+    localStorage.setItem('minbar_token', 'mock_token_12345');
+    localStorage.setItem('minbar_user', username);
+    closeAuthModal();
+    showToast("تم " + (currentAuthMode === 'login' ? "تسجيل الدخول" : "الاشتراك") + " بنجاح!", "success");
+    loadUserProgress();
+    showPage('dashboard-page');
   } catch (err) {
-    errorEl.textContent = 'تعذر الاتصال بالخادم';
+    const errorEl = document.getElementById("auth-error");
+    errorEl.textContent = 'حدث خطأ غير متوقع';
     errorEl.style.display = "block";
   }
 }
 
 async function loadUserProgress() {
   try {
-    const res = await fetch('http://localhost:3000/api/user/progress');
-    if (res.ok) {
-      const data = await res.json();
-      if(document.getElementById("sessions-count")) document.getElementById("sessions-count").textContent = data.sessions_count || 0;
-      
-      const userLevel = data.level || 'مبتدئ';
-      document.querySelectorAll(".user-level").forEach(el => el.innerHTML = `<i class="fas fa-star"></i> داعية ${userLevel}`);
-      document.querySelectorAll(".user-name").forEach(el => el.textContent = data.name);
-    }
+    // Mock user progress data instead of fetching from localhost server
+    const data = {
+      sessions_count: parseInt(localStorage.getItem('minbar_sessions') || "24"),
+      level: "متقدم",
+      name: localStorage.getItem('minbar_user') || "محمد أحمد",
+      khitaba: 85,
+      uslub: 72,
+      tafaul: 68,
+      thiqa: 79
+    };
+    
+    if(document.getElementById("sessions-count")) document.getElementById("sessions-count").textContent = data.sessions_count;
+    
+    const userLevel = data.level;
+    document.querySelectorAll(".user-level").forEach(el => el.innerHTML = `<i class="fas fa-star"></i> داعية ${userLevel}`);
+    document.querySelectorAll(".user-name").forEach(el => el.textContent = data.name);
   } catch (err) {
     console.error("Failed to load progress", err);
   }
@@ -1929,18 +1923,14 @@ async function loadUserProgress() {
 
 async function saveProgressUpdate(sessionCountIncr, kpiUpdate) {
   try {
-    const currentRes = await fetch('http://localhost:3000/api/user/progress');
-    if (!currentRes.ok) return;
-    const currentData = await currentRes.json();
-    
-    await fetch('http://localhost:3000/api/user/progress', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessions_count: (currentData.sessions_count || 0) + (sessionCountIncr || 0),
-        kpi_score: kpiUpdate || currentData.kpi_score
-      })
-    });
+    let currentSessions = parseInt(localStorage.getItem('minbar_sessions') || "24");
+    if (sessionCountIncr) {
+      localStorage.setItem('minbar_sessions', currentSessions + sessionCountIncr);
+    }
+    // Also update overall kpi if provided
+    if (kpiUpdate) {
+       localStorage.setItem('minbar_avg_progress', kpiUpdate);
+    }
   } catch (err) {
     console.error("Failed to save progress", err);
   }
@@ -2449,19 +2439,11 @@ async function saveKhutbah() {
   }
 
   try {
-    const res = await fetch('http://localhost:3000/api/khutbahs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(khutbahData)
-    });
-    if(res.ok) {
-      showToast("تم حفظ مسودة الخطبة بنجاح!", "success");
-    } else {
-      showToast("تعذر الحفظ في الخادم، ولكن تم الحفظ محلياً.", "success");
-    }
+    // Mock successful save locally instead of hitting localhost
+    showToast("تم حفظ مسودة الخطبة بنجاح محلياً!", "success");
   } catch(e) {
     console.error("Error saving khutbah:", e);
-    showToast("تم الحفظ محلياً (وضع عدم الاتصال).", "success");
+    showToast("حدث خطأ في الحفظ المحلي.", "error");
   }
 }
 
