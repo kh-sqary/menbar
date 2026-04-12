@@ -3,6 +3,41 @@
    Main JavaScript File
    ============================================ */
 
+/* ============================================
+   GOOGLE GEMINI API INTEGRATION
+   ============================================ */
+const GEMINI_API_KEY = "AIzaSyCqfrxBXx9UxE3efeB0owEtpu8neudHD7w";
+
+async function callGemini(promptOrHistory, systemContext = "") {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+  
+  // Handle string format or array history format
+  const contents = Array.isArray(promptOrHistory) 
+    ? promptOrHistory 
+    : [{ role: "user", parts: [{ text: promptOrHistory }] }];
+
+  const body = {
+    system_instruction: {
+      parts: [{ text: systemContext }]
+    },
+    contents: contents,
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 1500
+    }
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  const data = await response.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.candidates[0].content.parts[0].text;
+}
+
 // ============================================
 // PAGE NAVIGATION
 // ============================================
@@ -471,13 +506,26 @@ async function showAnalysis(transcript) {
   }
 
   try {
-    const res = await fetch(getApiUrl('/api/analyze-speech'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transcript })
-    });
+    const systemPrompt = `حلل هذا النص الخطابي أو الكلام من حيث:
+1. السرعة (قيّم من 1 إلى 100)
+2. الوضوح (قيّم من 1 إلى 100)
+3. الثقة (قيّم من 1 إلى 100)
+وأعط تقييماً عاماً (overall) من 1 إلى 100 مع ملخص قصير (summary) ونقاط القوة (strengths) ومقترحات للتحسين (improvements).
+مهم جداً: أعد النتيجة بصيغة JSON فقط بهذه الهيكلية بالضبط دون أي نصوص إضافية:
+{
+  "speed": 85,
+  "clarity": 90,
+  "confidence": 75,
+  "overall": 80,
+  "summary": "نص قصير...",
+  "strengths": ["نقطة 1", "نقطة 2"],
+  "improvements": ["مقترح 1", "مقترح 2"]
+}`;
 
-    const data = await res.json();
+    const replyText = await callGemini(transcript, systemPrompt);
+    const cleanJson = replyText.replace(/```json/i, '').replace(/```/g, '').trim();
+    const data = JSON.parse(cleanJson);
+    
     badge.style.display = "none";
 
     if (data.error) {
@@ -506,7 +554,7 @@ async function showAnalysis(transcript) {
   } catch (error) {
     console.error("Analysis Error:", error);
     badge.style.display = "none";
-    showToast("حدث خطأ أثناء الاتصال بخدمة التحليل الذكي.", "error");
+    showToast("حدث خطأ أثناء الاتصال بالذكاء الاصطناعي.", "error");
   }
 }
 
@@ -561,21 +609,20 @@ async function improveTranscription() {
   btn.disabled = true;
 
   try {
-    const res = await fetch(getApiUrl('/api/improve-speech'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
-    });
-    const data = await res.json();
+    const systemPrompt = "أنت خبير في فن الخطابة الإسلامية. حسّن هذه الخطبة من حيث: الأسلوب، الترتيب، قوة المقدمة والخاتمة. احتفظ بالمعنى الأصلي ولا تضف معلومات من عندك. أعد الخطبة كاملة بعد التحسين دون إضافات أو شروحات جانبية.";
     
-    if (data.improved) {
-      textarea.value = data.improved;
-      showToast("تم تحسين النص واقتراح أدلة جديدة بنجاح! ✨", "success");
+    // Call frontend Gemini API
+    const replyText = await callGemini(text, systemPrompt);
+    
+    if (replyText) {
+      textarea.value = replyText;
+      showToast("تم تحسين النص بنجاح! ✨", "success");
     } else {
       showToast("لم نتمكن من تحسين النص.", "error");
     }
   } catch (err) {
-    showToast("تعذر الاتصال بخدمة التحسين.", "error");
+    showToast("تعذر الاتصال بالذكاء الاصطناعي.", "error");
+    console.error("AI Improvement Error:", err);
   } finally {
     btn.innerHTML = originalHTML;
     btn.disabled = false;
@@ -1615,26 +1662,22 @@ async function sendChatMessage() {
   
   showTyping();
   scrollChatToBottom();
+  
+  // Prepare chat history
+  chatHistoryList.push({ role: "user", parts: [{ text: text }] });
 
   try {
-    const res = await fetch(getApiUrl('/api/chat'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        message: text, 
-        history: chatHistoryList 
-      })
-    });
-
-    const data = await res.json();
+    const systemPrompt = "أنت مساعد ذكي متخصص في منصة خطبة لتدريب الدعاة. تجيب على أسئلة الخطابة والدعوة الإسلامية فقط. ردودك باللغة العربية الفصحى. إذا سُئلت عن موضوع خارج الدعوة، اعتذر بلطف وأعد المستخدم للموضوع.";
+    
+    // Call Gemini Frontend Function
+    const replyText = await callGemini(chatHistoryList, systemPrompt);
     
     hideTyping();
     
-    if (data.reply) {
-      addMessage(data.reply, "bot");
-      // Update history
-      chatHistoryList.push({ role: "user", parts: [{ text: text }] });
-      chatHistoryList.push({ role: "model", parts: [{ text: data.reply }] });
+    if (replyText) {
+      addMessage(replyText, "bot");
+      // Update history with model response
+      chatHistoryList.push({ role: "model", parts: [{ text: replyText }] });
       if (chatHistoryList.length > 20) chatHistoryList = chatHistoryList.slice(-20);
       scrollChatToBottom();
     } else {
@@ -1642,7 +1685,9 @@ async function sendChatMessage() {
     }
   } catch (error) {
     hideTyping();
-    addMessage("تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.", "bot");
+    // Revert user message from history if API fails
+    chatHistoryList.pop();
+    addMessage("عذراً، حدث خطأ أثناء الاتصال. يرجى المحاولة لاحقاً.", "bot");
     console.error("Chat Error:", error);
   }
 }
