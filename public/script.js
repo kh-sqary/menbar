@@ -6,7 +6,13 @@
 /* ============================================
    GROQ API INTEGRATION (LLAMA 3.3)
    ============================================ */
-const GROQ_API_KEY = window.KhotbaConfig?.GROQ_API_KEY || "";
+// Function to get the latest config at call time
+function getGroqKey() {
+  return window.KhotbaConfig?.GROQ_API_KEY || "";
+}
+function getAssemblyKey() {
+  return window.KhotbaConfig?.ASSEMPLY_API_KEY || "";
+}
 
 async function callGemini(prompt, systemContext = "", forceJson = false) {
   // Rate limiting (Added previously)
@@ -41,17 +47,26 @@ async function callGemini(prompt, systemContext = "", forceJson = false) {
     reqBody.response_format = { type: "json_object" };
   }
 
+  const apiKey = getGroqKey();
+  if (!apiKey) {
+    console.error("Khotba: GROQ_API_KEY is missing. Please ensure config.js is loaded with the correct keys.");
+    throw new Error('مفتاح الـ API غير متوفر. يرجى مراجعة إعدادات الموقع.');
+  }
+
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${GROQ_API_KEY}`
+      "Authorization": `Bearer ${apiKey}`
     },
     body: JSON.stringify(reqBody)
   });
 
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message || "خطأ في الاتصال");
+  if (!response.ok) {
+    console.error("Groq API Error:", data);
+    throw new Error(data.error?.message || "خطأ في الاتصال بالسيرفر");
+  }
   return data.choices[0].message.content;
 }
 
@@ -273,7 +288,7 @@ function animateKPIBars() {
 // ============================================
 // RECORDING / TRAINING SECTION (HYBRID: WEB SPEECH + ASSEMBLY AI FALLBACK)
 // ============================================
-const ASSEMBLY_API_KEY = window.KhotbaConfig?.ASSEMPLY_API_KEY || "";
+// (Keys handled by getAssemblyKey function)
 
 let isRecording = false;
 let recordingTimer = null;
@@ -506,7 +521,7 @@ function stopAndAnalyze() {
               // Upload to AssemblyAI
               const uploadRes = await fetch("https://api.assemblyai.com/v2/upload", {
                   method: "POST",
-                  headers: { "Authorization": ASSEMBLY_API_KEY },
+                  headers: { "Authorization": getAssemblyKey() },
                   body: audioBlob
               });
               const uploadData = await uploadRes.json();
@@ -517,7 +532,7 @@ function stopAndAnalyze() {
               const transcriptRes = await fetch("https://api.assemblyai.com/v2/transcript", {
                   method: "POST",
                   headers: { 
-                      "Authorization": ASSEMBLY_API_KEY,
+                      "Authorization": getAssemblyKey(),
                       "Content-Type": "application/json"
                   },
                   body: JSON.stringify({ 
