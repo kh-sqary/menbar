@@ -4,44 +4,55 @@
    ============================================ */
 
 /* ============================================
-   GOOGLE GEMINI API INTEGRATION
+   GROQ API INTEGRATION (LLAMA 3.3)
    ============================================ */
-const GEMINI_API_KEY = "AIzaSyA8Sd80TagKhYg-Nyemejjbh93OyCD6Ddc";
+const GROQ_API_KEY = window.KhotbaConfig?.GROQ_API_KEY || "";
 
-async function callGemini(promptOrHistory, systemContext = "") {
+async function callGemini(prompt, systemContext = "", forceJson = false) {
+  // Rate limiting (Added previously)
   const now = Date.now();
   if (window._lastGeminiCall && now - window._lastGeminiCall < 3000) {
     throw new Error('برجاء الانتظار قليلاً قبل إرسال رسالة جديدة');
   }
   window._lastGeminiCall = now;
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
   
-  // Handle string format or array history format
-  const contents = Array.isArray(promptOrHistory) 
-    ? promptOrHistory 
-    : [{ role: "user", parts: [{ text: promptOrHistory }] }];
+  // Handling array format for the ChatBot history
+  let messages = [
+    { role: "system", content: systemContext || "أنت مساعد متخصص في منصة خطبة لتدريب الدعاة. تجيب باللغة العربية فقط." }
+  ];
 
-  const body = {
-    system_instruction: {
-      parts: [{ text: systemContext }]
-    },
-    contents: contents,
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 1500
-    }
+  if (Array.isArray(prompt)) {
+    messages = messages.concat(prompt.map(p => ({
+      role: p.role === 'model' ? 'assistant' : 'user',
+      content: p.parts[0].text 
+    })));
+  } else {
+    messages.push({ role: "user", content: prompt });
+  }
+
+  const reqBody = {
+    model: "llama-3.3-70b-versatile",
+    messages: messages,
+    max_tokens: 1000,
+    temperature: 0.7
   };
 
-  const response = await fetch(url, {
+  if (forceJson) {
+    reqBody.response_format = { type: "json_object" };
+  }
+
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${GROQ_API_KEY}`
+    },
+    body: JSON.stringify(reqBody)
   });
 
   const data = await response.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.candidates[0].content.parts[0].text;
+  if (!response.ok) throw new Error(data.error?.message || "خطأ في الاتصال");
+  return data.choices[0].message.content;
 }
 
 // ============================================
@@ -260,20 +271,36 @@ function animateKPIBars() {
 }
 
 // ============================================
-// RECORDING / TRAINING SECTION
+// RECORDING / TRAINING SECTION (HYBRID: WEB SPEECH + ASSEMBLY AI FALLBACK)
 // ============================================
+const ASSEMBLY_API_KEY = window.KhotbaConfig?.ASSEMPLY_API_KEY || "";
 
 let isRecording = false;
 let recordingTimer = null;
 let seconds = 0;
 let waveformInterval = null;
 
+let speechRecognition = null;
+let finalTranscript = "";
+
+let mediaRecorder = null;
+let audioChunks = [];
+let audioStream = null;
+
 /**
  * Toggle recording state
  */
 function toggleRecording() {
   if (!isRecording) {
-    startRecording();
+    if (mediaRecorder && mediaRecorder.state === "paused") {
+      mediaRecorder.resume();
+      if (speechRecognition) {
+        try { speechRecognition.start(); } catch(e){}
+      }
+      resumeRecordingUI();
+    } else {
+      startRecording();
+    }
   } else {
     pauseRecording();
   }
@@ -282,7 +309,79 @@ function toggleRecording() {
 /**
  * Start the recording simulation
  */
-function startRecording() {
+async function startRecording() {
+  try {
+    // 1. Force real hardware MIC access (This alone solves permissions)
+    if (!audioStream) {
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    }
+
+    if (!mediaRecorder || mediaRecorder.state === "inactive") {
+      const options = {};
+      if (MediaRecorder.isTypeSupported('audio/webm')) {
+        options.mimeType = 'audio/webm';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        options.mimeType = 'audio/mp4'; // Fallback for Safari/iOS
+      }
+      mediaRecorder = new MediaRecorder(audioStream, options);
+      audioChunks = [];
+      mediaRecorder.addEventListener("dataavailable", event => {
+        if (event.data.size > 0) audioChunks.push(event.data);
+      });
+      mediaRecorder.start(1000); // Timeslice guarantees chunk availability before stop
+    }
+
+    // 2. Setup Real-time Web Speech API for "on-the-fly" writing
+    if (!speechRecognition) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        speechRecognition = new SpeechRecognition();
+        speechRecognition.lang = 'ar-EG'; // Support Arabic natively
+        speechRecognition.continuous = true;
+        speechRecognition.interimResults = true;
+        
+        speechRecognition.onresult = (event) => {
+          let interimTranscript = "";
+          let currentFinal = "";
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              currentFinal += event.results[i][0].transcript + " ";
+            } else {
+              interimTranscript += event.results[i][0].transcript;
+            }
+          }
+          finalTranscript += currentFinal;
+          document.getElementById("stt-textarea").value = finalTranscript + interimTranscript;
+        };
+
+        speechRecognition.onerror = (event) => {
+          console.error("Speech Recognition Error:", event.error);
+        };
+        
+        speechRecognition.onend = () => {
+          if (isRecording) {
+            try { speechRecognition.start(); } catch(e) {}
+          }
+        };
+      }
+    }
+    
+    if (!isRecording) {
+       finalTranscript = document.getElementById("stt-textarea").value;
+       if(finalTranscript.length > 0 && !finalTranscript.endsWith(" ")) finalTranscript += " ";
+       if (speechRecognition) {
+         try { speechRecognition.start(); } catch(e) {}
+       }
+    }
+    
+    resumeRecordingUI();
+  } catch (err) {
+    console.error("Mic access error:", err);
+    showToast("يرجى السماح بالوصول إلى الميكروفون للتسجيل", "error");
+  }
+}
+
+function resumeRecordingUI() {
   isRecording = true;
 
   const circle = document.getElementById("recording-circle");
@@ -296,7 +395,7 @@ function startRecording() {
   circle.classList.add("recording");
   pulse.classList.add("active");
   icon.className = "fas fa-pause";
-  label.textContent = "جاري التسجيل...";
+  label.textContent = "جاري الاستماع... يمكنك التحدث الآن";
   toggleBtn.innerHTML = '<i class="fas fa-pause"></i><span>إيقاف مؤقت</span>';
   stopBtn.disabled = false;
 
@@ -317,6 +416,14 @@ function startRecording() {
  */
 function pauseRecording() {
   isRecording = false;
+
+  if (speechRecognition) {
+    try { speechRecognition.stop(); } catch(e) {}
+  }
+  
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.pause();
+  }
 
   const circle = document.getElementById("recording-circle");
   const pulse = document.getElementById("recording-pulse");
@@ -339,12 +446,15 @@ function pauseRecording() {
  */
 function stopAndAnalyze() {
   if (seconds < 1) {
-    showToast("يرجى التسجيل لمدة ثانية على الأقل");
+    showToast("يرجى التسجيل لمدة ثانية على الأقل", "error");
     return;
   }
 
-  // Stop recording
   isRecording = false;
+  if (speechRecognition) {
+    try { speechRecognition.stop(); } catch(e) {}
+  }
+  
   clearInterval(recordingTimer);
   stopWaveformAnimation();
 
@@ -362,11 +472,106 @@ function stopAndAnalyze() {
   toggleBtn.innerHTML = '<i class="fas fa-play"></i><span>تسجيل</span>';
   stopBtn.disabled = true;
 
-  // Get transcript from textarea
-  const transcript = document.getElementById("stt-textarea").value.trim();
+  const transcriptText = document.getElementById("stt-textarea").value.trim();
+  
+  // SCENARIO 1: Web Speech API succeeded in writing text live
+  if (transcriptText.length > 5) {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+          mediaRecorder.stop();
+          if (audioStream) {
+            audioStream.getTracks().forEach(track => track.stop());
+            audioStream = null;
+          }
+      }
+      showToast("تم التقاط الصوت! يتم الآن تقييم الخطبة...", "success");
+      showAnalysis(transcriptText);
+      stopBtn.innerHTML = '<i class="fas fa-stop"></i><span>إيقاف وتحليل</span>';
+      stopBtn.disabled = false;
+      return;
+  }
 
-  // Show analyzing state
-  showAnalysis(transcript);
+  // SCENARIO 2: Web Speech API failed silently (Empty textarea). Fallback to AssemblyAI
+  stopBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span> تفريغ الصوت ذكياً...</span>';
+  
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.addEventListener("stop", async () => {
+          const actualMimeType = mediaRecorder.mimeType || 'audio/webm';
+          const audioBlob = new Blob(audioChunks, { type: actualMimeType });
+          if (audioStream) {
+            audioStream.getTracks().forEach(track => track.stop());
+            audioStream = null;
+          }
+          
+          try {
+              // Upload to AssemblyAI
+              const uploadRes = await fetch("https://api.assemblyai.com/v2/upload", {
+                  method: "POST",
+                  headers: { "Authorization": ASSEMBLY_API_KEY },
+                  body: audioBlob
+              });
+              const uploadData = await uploadRes.json();
+              
+              if (!uploadData.upload_url) throw new Error("Upload Failed");
+
+              // Start transcription
+              const transcriptRes = await fetch("https://api.assemblyai.com/v2/transcript", {
+                  method: "POST",
+                  headers: { 
+                      "Authorization": ASSEMBLY_API_KEY,
+                      "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({ 
+                      audio_url: uploadData.upload_url,
+                      language_code: "ar" 
+                  })
+              });
+              const transcriptData = await transcriptRes.json();
+              const transcriptId = transcriptData.id;
+
+              // Poll for completion
+              let status = "processing";
+              let textResult = "";
+              while (status === "processing" || status === "queued") {
+                  await new Promise(r => setTimeout(r, 2000));
+                  const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
+                      headers: { "Authorization": ASSEMBLY_API_KEY }
+                  });
+                  const pollData = await pollRes.json();
+                  status = pollData.status;
+                  if (status === "completed") {
+                      textResult = pollData.text;
+                  } else if (status === "error") {
+                      throw new Error("Transcribe Error");
+                  }
+              }
+
+              const textarea = document.getElementById("stt-textarea");
+              textarea.value = textResult;
+              
+              if (!textResult.trim()) {
+                  showToast("لم نتمكن من سماع أي صوت واضح. يرجى تكرار التسجيل.", "error");
+                  stopBtn.innerHTML = '<i class="fas fa-stop"></i><span>إيقاف وتحليل</span>';
+                  stopBtn.disabled = false;
+                  return;
+              }
+              
+              showToast("اكتمل التفريغ عبر AssemblyAI! جاري التقييم...", "success");
+              showAnalysis(textResult);
+
+          } catch(err) {
+              console.error("AssemblyAI Error:", err);
+              showToast("هناك مشكلة في تحويل صوتك. المربع فارغ.", "error");
+          } finally {
+              stopBtn.innerHTML = '<i class="fas fa-stop"></i><span>إيقاف وتحليل</span>';
+              stopBtn.disabled = false;
+          }
+      });
+      mediaRecorder.stop();
+  } else {
+      showToast("المربع فارغ ولم نستطع التقاط أي صوت.", "error");
+      stopBtn.innerHTML = '<i class="fas fa-stop"></i><span>إيقاف وتحليل</span>';
+      stopBtn.disabled = false;
+  }
 }
 
 /**
@@ -528,7 +733,7 @@ async function showAnalysis(transcript) {
   "improvements": ["مقترح 1", "مقترح 2"]
 }`;
 
-    const replyText = await callGemini(transcript, systemPrompt);
+    const replyText = await callGemini(transcript, systemPrompt, true);
     const cleanJson = replyText.replace(/```json/i, '').replace(/```/g, '').trim();
     const data = JSON.parse(cleanJson);
     
@@ -615,7 +820,11 @@ async function improveTranscription() {
   btn.disabled = true;
 
   try {
-    const systemPrompt = "أنت خبير في فن الخطابة الإسلامية. حسّن هذه الخطبة من حيث: الأسلوب، الترتيب، قوة المقدمة والخاتمة. احتفظ بالمعنى الأصلي ولا تضف معلومات من عندك. أعد الخطبة كاملة بعد التحسين دون إضافات أو شروحات جانبية.";
+    const systemPrompt = `أنت خبير ومحكم صارم في فن الخطابة والدعوة. قوانينك:
+1- أعد صياغة هذه الخطبة بأسلوب عربي بليغ ومؤثر جداً.
+2- حافظ على المعنى الأصلي تماماً دون تحريف.
+3- استخدم ألفاظاً شرعية ورصينة تتناسب مع منبر المسجد.
+4- أرسل النص المحسّن بشكل مباشر فقط! لا تكتب أي مقدمات، ولا تضع أي شروحات أو تعليقات خارجية.`;
     
     // Call frontend Gemini API
     const replyText = await callGemini(text, systemPrompt);
@@ -1673,7 +1882,15 @@ async function sendChatMessage() {
   chatHistoryList.push({ role: "user", parts: [{ text: text }] });
 
   try {
-    const systemPrompt = "أنت مساعد ذكي متخصص في منصة خطبة لتدريب الدعاة. تجيب على أسئلة الخطابة والدعوة الإسلامية فقط. ردودك باللغة العربية الفصحى. إذا سُئلت عن موضوع خارج الدعوة، اعتذر بلطف وأعد المستخدم للموضوع.";
+    const systemPrompt = `أنت المساعد الأكاديمي والمدرب الأساسي في "منصة خطبة" لإعداد الدعاة والخطباء.
+معلومات أساسية عن مطوريك: نحن مجموعة طلاب من كلية الدعوة الإسلامية بجامعة الأزهر بنين القاهرة.
+
+قوانينك الصارمة (طاعتها إجبارية):
+1. التخصص والمصادر: تجيب حصرياً في علوم الخطابة والدعوة. استمد علمك من مكتبات إسلامية موثوقة (مثل إسلام ويب) وتحدث كخبير دعوي.
+2. المنهجية والخلافات: يُمنع منعاً باتاً الخوض في أي خلافات عقدية (أشاعرة، سلفية، ماتريدية) أو أي صراعات سياسية. يمكنك ذكر الخلافات الفقهية بشكل علمي طبيعي ومحايد. كن دائماً سهلاً، سمحاً، وميسراً للناس.
+3. أسلوب وشكل الإجابة: الإجابات يجب أن تكون "مختصرة جداً" ومبسطة لأقصى حد. استخدم دائماً القوائم والنقاط (Bullet points) بحيث تكون كل معلومة في سطر مستقل لسهولة القراءة. تحدث بهدوء وبدون مونولوجات طويلة أو حشو زائد.
+4. الموثوقية: اقتصر في الأدلة على القرآن وصحيح السنة فقط. تجنب الأحاديث الضعيفة والقصص الواهية تماماً.
+5. الانضباط: إذا سُئلت عن موضوع خارج مساحة الدعوة أو العلوم الشرعية، اعتذر بعبارة واحدة لطيفة.`;
     
     // Call Gemini Frontend Function
     const replyText = await callGemini(chatHistoryList, systemPrompt);
@@ -1948,41 +2165,43 @@ async function saveProgressUpdate(sessionCountIncr, kpiUpdate) {
 let libraryData = [];
 
 const libraryItems = {
-  books: [
-    { id: 101, title: "مدارج السالكين", author: "ابن القيم الجوزية", category: "تزكية", icon: "leaf" },
-    { id: 102, title: "إحياء علوم الدين", author: "أبو حامد الغزالي", category: "تزكية", icon: "leaf" },
-    { id: 103, title: "منهاج القاصدين", author: "ابن الجوزي", category: "تزكية", icon: "leaf" },
-    { id: 104, title: "المغني", author: "ابن قدامة المقدسي", category: "فقه", icon: "gavel" },
-    { id: 105, title: "بداية المجتهد", author: "ابن رشد", category: "فقه", icon: "gavel" },
-    { id: 106, title: "المجموع", author: "الإمام النووي", category: "فقه", icon: "gavel" },
-    { id: 107, title: "رياض الصالحين", author: "الإمام النووي", category: "حديث", icon: "book" },
-    { id: 108, title: "بلوغ المرام", author: "ابن حجر العسقلاني", category: "حديث", icon: "book" },
-    { id: 111, title: "أصول الدعوة", author: "د. عبد الكريم زيدان", category: "أصول دعوة", icon: "paper-plane" }
+  "العقيدة": [
+    { title: "جوهرة التوحيد", author: "إبراهيم اللقاني", category: "العقيدة", icon: "cube", pdf: "https://ia802804.us.archive.org/3/items/fp91942/91942.pdf" },
+    { title: "الخريدة البهية", author: "أحمد الدردير", category: "العقيدة", icon: "cube", pdf: "https://ia800702.us.archive.org/27/items/kharida.bahia.all/khareedahh.pdf" },
+    { title: "كبرى اليقينيات الكونية", author: "د. محمد سعيد رمضان البوطي", category: "العقيدة", icon: "cube", pdf: "https://ia800902.us.archive.org/3/items/KubraYYaqiniyat/kubra-yaqiniyat.pdf" }
   ],
-  hadith: [
-    { id: 201, title: "صحيح البخاري", author: "الإمام البخاري", category: "الكتب التسعة", icon: "scroll" },
-    { id: 202, title: "صحيح مسلم", author: "الإمام مسلم", category: "الكتب التسعة", icon: "scroll" },
-    { id: 203, title: "سنن أبي داود", author: "أبو داود السجستاني", category: "الكتب التسعة", icon: "scroll" },
-    { id: 204, title: "جامع الترمذي", author: "الإمام الترمذي", category: "الكتب التسعة", icon: "scroll" },
-    { id: 205, title: "سنن النسائي", author: "الإمام النسائي", category: "الكتب التسعة", icon: "scroll" },
-    { id: 206, title: "سنن ابن ماجه", author: "ابن ماجه القزويني", category: "الكتب التسعة", icon: "scroll" },
-    { id: 207, title: "مسند الإمام أحمد", author: "الإمام أحمد بن حنبل", category: "الكتب التسعة", icon: "scroll" },
-    { id: 208, title: "موطأ الإمام مالك", author: "الإمام مالك بن أنس", category: "الكتب التسعة", icon: "scroll" },
-    { id: 209, title: "سنن الدارمي", author: "الإمام الدارمي", category: "الكتب التسعة", icon: "scroll" }
+  "التفسير": [
+    { title: "تفسير ابن كثير", author: "الإمام ابن كثير", category: "التفسير", icon: "book-open", pdf: "https://ia800305.us.archive.org/26/items/Tafseer_Ibn_Katheer/Tafseer_Ibn_Katheer.pdf" },
+    { title: "تفسير الطبري", author: "الإمام الطبري", category: "التفسير", icon: "book-open", pdf: "https://ia801300.us.archive.org/23/items/tafseratabari/tafseratabari.pdf" },
+    { title: "تيسير الكريم الرحمن", author: "السعدي", category: "التفسير", icon: "book-open", pdf: "https://ia800302.us.archive.org/1/items/Tafseer_Sa3dy_Jame3/t_saadi.pdf" }
   ],
-  quran: [
-    { id: 301, title: "سورة الفاتحة", author: "مكية", category: "القرآن الكريم", icon: "quran" },
-    { id: 302, title: "سورة البقرة", author: "مدنية", category: "القرآن الكريم", icon: "quran" },
-    { id: 303, title: "سورة آل عمران", author: "مدنية", category: "القرآن الكريم", icon: "quran" },
-    { id: 304, title: "سورة الأنعام", author: "مكية", category: "القرآن الكريم", icon: "quran" },
-    { id: 305, title: "سورة الكهف", author: "مكية", category: "القرآن الكريم", icon: "quran" },
-    { id: 306, title: "سورة مريم", author: "مكية", category: "القرآن الكريم", icon: "quran" },
-    { id: 307, title: "سورة طه", author: "مكية", category: "القرآن الكريم", icon: "quran" },
-    { id: 308, title: "سورة يس", author: "مكية", category: "القرآن الكريم", icon: "quran" },
-    { id: 309, title: "سورة الرحمن", author: "مدنية", category: "القرآن الكريم", icon: "quran" },
-    { id: 310, title: "سورة الواقعة", author: "مكية", category: "القرآن الكريم", icon: "quran" },
-    { id: 311, title: "سورة الملك", author: "مكية", category: "القرآن الكريم", icon: "quran" },
-    { id: 312, title: "سورة الإخلاص", author: "مكية", category: "القرآن الكريم", icon: "quran" }
+  "الحديث": [
+    { title: "صحيح البخاري", author: "الإمام البخاري", category: "الحديث الشريف", icon: "comment-dots", pdf: "https://ia800508.us.archive.org/0/items/sahih-al-bukhari_202010/sahih-bukhari.pdf" },
+    { title: "صحيح مسلم", author: "الإمام مسلم", category: "الحديث الشريف", icon: "comment-dots", pdf: "https://ia802908.us.archive.org/11/items/abualhasan_s_m/s_m.pdf" },
+    { title: "رياض الصالحين", author: "الإمام النووي", category: "الحديث الشريف", icon: "comment-dots", pdf: "https://ia802803.us.archive.org/4/items/ryadalssalhen/ryadalssalhen.pdf" }
+  ],
+  "الفقه": [
+    { title: "المغني", author: "ابن قدامة المقدسي", category: "الفقه", icon: "scale-balanced", pdf: "https://ia802807.us.archive.org/28/items/Al-mugni/Mugni.pdf" },
+    { title: "بداية المجتهد", author: "ابن رشد", category: "الفقه", icon: "scale-balanced", pdf: "https://ia800306.us.archive.org/25/items/bidayat_mujtahid/bidayat.pdf" },
+    { title: "فقه السنة", author: "سيد سابق", category: "الفقه", icon: "scale-balanced", pdf: "https://ia800206.us.archive.org/13/items/fiqhusunnah/fiqh_usunnah.pdf" }
+  ],
+  "السيرة": [
+    { title: "الرحيق المختوم", author: "صفي الرحمن المباركفوري", category: "السيرة", icon: "mosque", pdf: "https://ia802807.us.archive.org/10/items/RaheeqMakhtoom/raheeq_makhtoom.pdf" },
+    { title: "زاد المعاد", author: "ابن قيم الجوزية", category: "السيرة", icon: "mosque", pdf: "https://ia800201.us.archive.org/15/items/Zad_Al-Maad/Zad.pdf" },
+    { title: "سيرة ابن هشام", author: "ابن هشام", category: "السيرة", icon: "mosque", pdf: "https://ia800207.us.archive.org/17/items/SerahIbnHisham/SerahHisham.pdf" }
+  ],
+  "الرقائق": [
+    { title: "مدارج السالكين", author: "ابن قيم الجوزية", category: "الرقائق", icon: "heart", pdf: "https://ia800307.us.archive.org/28/items/Madarij_Salikeen/Madarij.pdf" },
+    { title: "إحياء علوم الدين", author: "أبو حامد الغزالي", category: "الرقائق", icon: "heart", pdf: "https://ia800201.us.archive.org/7/items/Ihya_Oloum_Eddin/Ihya.pdf" },
+    { title: "الداء والدواء", author: "ابن قيم الجوزية", category: "الرقائق", icon: "heart", pdf: "https://ia802802.us.archive.org/3/items/DaWaDawaZad/dawa2.pdf" }
+  ],
+  "اللغة": [
+    { title: "ألفية ابن مالك", author: "ابن مالك", category: "اللغة", icon: "feather", pdf: "https://ia800306.us.archive.org/34/items/Alfiya_Ibn_Malik/Alfiya.pdf" },
+    { title: "مغني اللبيب", author: "ابن هشام الأنصاري", category: "اللغة", icon: "feather", pdf: "https://ia800208.us.archive.org/22/items/MughniLabib/Mughni.pdf" }
+  ],
+  "عام": [
+    { title: "رسالة في آداب البحث", author: "مجهول", category: "بحوث", icon: "layer-group", pdf: "https://ia800908.us.archive.org/24/items/Risalat_Adab_Bahth/Risala.pdf" },
+    { title: "فتاوى معاصرة", author: "مجموعة علماء", category: "فتاوى", icon: "layer-group", pdf: "https://ia802901.us.archive.org/25/items/FatawaQaradawi/Fatawa.pdf" }
   ]
 };
 
@@ -2037,42 +2256,58 @@ const progressObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.2 });
 
 
-async function loadLibraryCategory(category) {
-  document.querySelectorAll('.lib-tab').forEach(tab => tab.classList.remove('active'));
-  const activeTab = Array.from(document.querySelectorAll('.lib-tab')).find(t => t.innerText.includes(category === 'books' ? 'كتب' : category === 'quran' ? 'القرآن' : 'الأحاديث'));
-  if (activeTab) activeTab.classList.add('active');
+async function openLibCategory(categoryKey) {
+  document.getElementById('library-categories').style.display = 'none';
+  const booksView = document.getElementById('library-books-view');
+  booksView.style.display = 'block';
+  
+  const titleEl = document.getElementById('current-category-title');
+  titleEl.innerHTML = `<i class="fas fa-book"></i> قسم: ${categoryKey}`;
 
   const container = document.getElementById('library-container');
   const loader = document.getElementById('library-loading');
-  if (!container || !loader) return;
-
+  
   container.innerHTML = '';
   loader.style.display = 'block';
 
-  // Simulate network delay
+  // Simulate network fetch for books
   setTimeout(() => {
-    libraryData = libraryItems[category] || [];
     loader.style.display = 'none';
-    renderLibraryData(libraryData);
-  }, 300);
+    const books = libraryItems[categoryKey] || [];
+    renderLibraryData(books);
+  }, 400);
+}
+
+function backToCategories() {
+  document.getElementById('library-books-view').style.display = 'none';
+  document.getElementById('library-categories').style.display = 'grid';
+  document.getElementById('lib-search-input').value = '';
 }
 
 function renderLibraryData(items) {
   const container = document.getElementById('library-container');
   if (!container) return;
   container.innerHTML = '';
+  
+  if(items.length === 0) {
+     container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 40px;">لا يوجد كتب في هذا القسم حالياً.</div>';
+     return;
+  }
+  
   items.forEach(item => {
     container.innerHTML += `
-      <div class="lib-card">
-        <div class="lib-card-badge">${item.category}</div>
-        <img src="https://api.dicebear.com/7.x/initials/svg?seed=${item.title}&backgroundColor=b6e3f4" alt="${item.title}" />
-        <div class="lib-card-info">
-          <h4>${item.title}</h4>
-          <p class="lib-card-author"><i class="fas fa-user-edit"></i> ${item.author}</p>
+      <div class="lib-card" style="background: var(--bg-card); border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div class="lib-card-badge" style="background:var(--primary); color:white">${item.category}</div>
+        <div style="height: 120px; background: linear-gradient(135deg, rgba(95,168,211,0.2), rgba(62,124,166,0.1)); display:flex; align-items:center; justify-content:center;">
+           <i class="fas fa-${item.icon} fa-4x" style="color:var(--secondary)"></i>
         </div>
-        <div style="display:flex; gap:10px; margin-top:auto;">
-          <button class="lib-action" style="flex:1;">قراءة <i class="fas fa-book-open"></i></button>
-          <button class="btn-primary" style="flex:1; font-size:0.8rem; padding:8px;" onclick="showToast('تمت الإضافة للمحرر', 'success')"><i class="fas fa-plus"></i> إدراج</button>
+        <div class="lib-card-info" style="padding: 15px;">
+          <h4 style="margin-bottom: 8px; color: var(--color-text-primary); font-size: 1.1rem;">${item.title}</h4>
+          <p class="lib-card-author" style="color: var(--text-light); font-size: 0.9rem;"><i class="fas fa-user-edit"></i> ${item.author}</p>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:auto; padding: 0 15px 15px 15px;">
+          <button class="lib-action" onclick="window.open('${item.pdf}', '_blank')" style="flex:1; border: 1px solid var(--primary); background: transparent; color: var(--primary); border-radius: 6px; cursor: pointer;">تصفح PDF <i class="fas fa-file-pdf"></i></button>
+          <button class="btn-primary" style="flex:1; font-size:0.8rem; padding:8px;" onclick="showToast('تم إرسال الاقتباس للمحرر', 'success')"><i class="fas fa-plus"></i> إدراج</button>
         </div>
       </div>
     `;

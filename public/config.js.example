@@ -1,0 +1,7 @@
+// Example local configuration
+// Rename this file to config.js and add your keys
+window.KhotbaConfig = {
+    GROQ_API_KEY: "YOUR_GROQ_API_KEY_HERE",
+    ASSEMPLY_API_KEY: "YOUR_ASSEMBLY_API_KEY_HERE",
+    GEMINI_API_KEY: "YOUR_GEMINI_API_KEY_HERE"
+};
