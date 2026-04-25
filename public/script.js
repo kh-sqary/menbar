@@ -549,7 +549,7 @@ function stopAndAnalyze() {
               while (status === "processing" || status === "queued") {
                   await new Promise(r => setTimeout(r, 2000));
                   const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
-                      headers: { "Authorization": ASSEMBLY_API_KEY }
+                      headers: { "Authorization": getAssemblyKey() }
                   });
                   const pollData = await pollRes.json();
                   status = pollData.status;

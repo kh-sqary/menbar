@@ -1240,6 +1240,11 @@
 
   <!-- Configuration -->
   <script src="config.js"></script>
+  <script>
+    if (typeof window.KhotbaConfig === 'undefined') {
+      document.write('<script src="/api/config"><\\/script>');
+    }
+  </script>
   <script src="config-check.js"></script>
   <script src="script.js"></script>
 </body>
