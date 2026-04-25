@@ -270,18 +270,16 @@ img {
 }
 
 .project-logo {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  object-fit: cover;
+  height: 45px;
+  width: auto;
+  object-fit: contain;
   mix-blend-mode: multiply; /* Removes white background on light surfaces */
   transition: var(--transition);
 }
 
 [data-theme="dark"] .project-logo {
-  mix-blend-mode: normal; /* Multiply doesn't work well on dark surfaces */
-  filter: brightness(1.1);
-  background: white; /* Optional: adds a white backing if the logo is too dark */
+  mix-blend-mode: screen; /* Removes black/dark background on dark surfaces */
+  filter: brightness(1.2);
 }
 
 .college-logo {
