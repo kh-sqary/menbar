@@ -270,11 +270,12 @@ img {
 }
 
 .project-logo {
-  height: 38px;
+  height: 45px;
   width: auto;
   object-fit: contain;
   transition: var(--transition);
-  padding: 2px 0;
+  padding: 5px;
+  display: block;
 }
 
 .logo-dark { display: none; }
