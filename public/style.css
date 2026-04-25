@@ -270,15 +270,18 @@ img {
 }
 
 .project-logo {
-  height: 45px;
+  height: 38px;
   width: auto;
   object-fit: contain;
-  mix-blend-mode: multiply; /* Removes white background on light surfaces */
   transition: var(--transition);
+  padding: 2px 0;
 }
 
+.logo-dark { display: none; }
+[data-theme="dark"] .logo-dark { display: block; }
+[data-theme="dark"] .logo-light { display: none; }
+
 [data-theme="dark"] .project-logo {
-  mix-blend-mode: screen; /* Removes black/dark background on dark surfaces */
   filter: brightness(1.2);
 }
 
