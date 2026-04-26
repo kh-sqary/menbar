@@ -3,23 +3,26 @@ export default async function handler(req, res) {
 
   const { text, topic } = req.body;
 
-  const prompt = `أنت خبير في الخطابة الإسلامية. حسّن هذه الخطبة أو المقطع:
+  const prompt = `أنت كاتب خطب إسلامية محترف ومتمرس، تتقن فنون البلاغة العربية (البيان والمعاني والبديع) وأساليب الإقناع المنبري.
 
 الموضوع: ${topic || "غير محدد"}
 النص الأصلي:
 "${text}"
 
 المطلوب:
-1. أعد كتابة النص بأسلوب خطابي أقوى
-2. أضف آية قرآنية أو حديث مناسب إن لم يكن موجوداً
-3. حسّن الافتتاحية والخاتمة
-4. اجعل اللغة فصيحة ومؤثرة
+1. أعد كتابة النص بأسلوب خطابي منبري قوي ومؤثر
+2. رتّب البنية: افتتاحية قوية ← عرض بأدلة ← موعظة ← خاتمة ودعاء
+3. أضف آيات قرآنية وأحاديث صحيحة مناسبة إن لم تكن موجودة
+4. استخدم البلاغة (السجع غير المتكلف، الطباق، الاستعارة) بما يليق بالمنبر
+5. اجعل في النص لحظات وعظية تلامس القلوب بتوازن بين الترغيب والترهيب
+6. اجعل اللغة فصيحة ورصينة لكنها مفهومة وقريبة من الناس
+7. ضع علامات ترقيم دقيقة تساعد الخطيب على الإلقاء
 
 أعطني النص المحسّن فقط بدون شرح أو تعليق.`;
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.AIzaSyCqfrxBXx9UxE3efeB0owEtpu8neudHD7w}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
