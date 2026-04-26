@@ -2213,43 +2213,62 @@ async function saveProgressUpdate(sessionCountIncr, kpiUpdate) {
 let libraryData = [];
 
 const libraryItems = {
+  "الخطابة": [
+    { title: "فن الخطابة", author: "ديل كارنيجي", category: "الخطابة", icon: "microphone-alt", color: "#5FA8D3", pdf: "https://archive.org/details/lis01793" },
+    { title: "فن الخطابة وإعداد الخطيب", author: "عبد الرحمن المحمود", category: "الخطابة", icon: "microphone-alt", color: "#5FA8D3", pdf: "https://archive.org/details/2828Pdf_201812" },
+    { title: "دروس في فن الخطابة", author: "مجموعة مؤلفين", category: "الخطابة", icon: "microphone-alt", color: "#3E7CA6", pdf: "https://archive.org/details/20220315_20220315_1411" },
+    { title: "فن الخطابة ومهارات الخطيب", author: "إسماعيل علي محمد", category: "الخطابة", icon: "microphone-alt", color: "#3E7CA6", pdf: "https://archive.org/details/abdallaelhayes_yahoo_3" },
+    { title: "المدخل إلى علم الدعوة", author: "محمد البيانوني", category: "الدعوة", icon: "microphone-alt", color: "#5FA8D3", pdf: "https://archive.org/details/20200618_20200618_0400" }
+  ],
   "العقيدة": [
-    { title: "جوهرة التوحيد", author: "إبراهيم اللقاني", category: "العقيدة", icon: "cube", pdf: "https://ia802804.us.archive.org/3/items/fp91942/91942.pdf" },
-    { title: "الخريدة البهية", author: "أحمد الدردير", category: "العقيدة", icon: "cube", pdf: "https://ia800702.us.archive.org/27/items/kharida.bahia.all/khareedahh.pdf" },
-    { title: "كبرى اليقينيات الكونية", author: "د. محمد سعيد رمضان البوطي", category: "العقيدة", icon: "cube", pdf: "https://ia800902.us.archive.org/3/items/KubraYYaqiniyat/kubra-yaqiniyat.pdf" }
+    { title: "كبرى اليقينيات الكونية", author: "محمد سعيد رمضان البوطي", category: "العقيدة", icon: "cube", color: "#66BB6A", pdf: "https://archive.org/details/koobra-yakiniyat" },
+    { title: "العقيدة الطحاوية", author: "الإمام الطحاوي", category: "العقيدة", icon: "cube", color: "#43A047", pdf: "https://archive.org/details/aqidattahawia" },
+    { title: "شرح العقيدة الواسطية", author: "ابن عثيمين", category: "العقيدة", icon: "cube", color: "#66BB6A", pdf: "https://archive.org/details/20200505_20200505_0217" },
+    { title: "لوامع الأنوار البهية", author: "السفاريني", category: "العقيدة", icon: "cube", color: "#43A047", pdf: "https://archive.org/details/safarini" }
   ],
   "التفسير": [
-    { title: "تفسير ابن كثير", author: "الإمام ابن كثير", category: "التفسير", icon: "book-open", pdf: "https://ia800305.us.archive.org/26/items/Tafseer_Ibn_Katheer/Tafseer_Ibn_Katheer.pdf" },
-    { title: "تفسير الطبري", author: "الإمام الطبري", category: "التفسير", icon: "book-open", pdf: "https://ia801300.us.archive.org/23/items/tafseratabari/tafseratabari.pdf" },
-    { title: "تيسير الكريم الرحمن", author: "السعدي", category: "التفسير", icon: "book-open", pdf: "https://ia800302.us.archive.org/1/items/Tafseer_Sa3dy_Jame3/t_saadi.pdf" }
+    { title: "تفسير ابن كثير", author: "الإمام ابن كثير", category: "التفسير", icon: "book-open", color: "#FF8C69", pdf: "https://archive.org/details/tafsir-ibn-kathir-tayba" },
+    { title: "تفسير الطبري", author: "الإمام الطبري", category: "التفسير", icon: "book-open", color: "#FF8C69", pdf: "https://archive.org/details/tkather" },
+    { title: "تيسير الكريم الرحمن", author: "عبد الرحمن السعدي", category: "التفسير", icon: "book-open", color: "#E65100", pdf: "https://archive.org/details/taborak_gmail_20160717" },
+    { title: "الجامع لأحكام القرآن", author: "الإمام القرطبي", category: "التفسير", icon: "book-open", color: "#FF8C69", pdf: "https://archive.org/details/taborak_gmail_201607172" }
   ],
   "الحديث": [
-    { title: "صحيح البخاري", author: "الإمام البخاري", category: "الحديث الشريف", icon: "comment-dots", pdf: "https://ia800508.us.archive.org/0/items/sahih-al-bukhari_202010/sahih-bukhari.pdf" },
-    { title: "صحيح مسلم", author: "الإمام مسلم", category: "الحديث الشريف", icon: "comment-dots", pdf: "https://ia802908.us.archive.org/11/items/abualhasan_s_m/s_m.pdf" },
-    { title: "رياض الصالحين", author: "الإمام النووي", category: "الحديث الشريف", icon: "comment-dots", pdf: "https://ia802803.us.archive.org/4/items/ryadalssalhen/ryadalssalhen.pdf" }
+    { title: "صحيح البخاري", author: "الإمام البخاري", category: "الحديث", icon: "comment-dots", color: "#48D1CC", pdf: "https://archive.org/details/20220409_20220409_1554" },
+    { title: "صحيح مسلم", author: "الإمام مسلم", category: "الحديث", icon: "comment-dots", color: "#48D1CC", pdf: "https://archive.org/details/20201125_20201125_2312" },
+    { title: "رياض الصالحين", author: "الإمام النووي", category: "الحديث", icon: "comment-dots", color: "#00897B", pdf: "https://archive.org/details/riyadu-saliheen-mahir-fahl" },
+    { title: "الأربعون النووية", author: "الإمام النووي", category: "الحديث", icon: "comment-dots", color: "#48D1CC", pdf: "https://archive.org/details/20220626_20220626_1523" },
+    { title: "بلوغ المرام", author: "ابن حجر العسقلاني", category: "الحديث", icon: "comment-dots", color: "#00897B", pdf: "https://archive.org/details/20221218_20221218_0728" }
   ],
   "الفقه": [
-    { title: "المغني", author: "ابن قدامة المقدسي", category: "الفقه", icon: "scale-balanced", pdf: "https://ia802807.us.archive.org/28/items/Al-mugni/Mugni.pdf" },
-    { title: "بداية المجتهد", author: "ابن رشد", category: "الفقه", icon: "scale-balanced", pdf: "https://ia800306.us.archive.org/25/items/bidayat_mujtahid/bidayat.pdf" },
-    { title: "فقه السنة", author: "سيد سابق", category: "الفقه", icon: "scale-balanced", pdf: "https://ia800206.us.archive.org/13/items/fiqhusunnah/fiqh_usunnah.pdf" }
+    { title: "فقه السنة", author: "سيد سابق", category: "الفقه", icon: "scale-balanced", color: "#FFD700", pdf: "https://archive.org/details/fiqh_sunnah_2017" },
+    { title: "بداية المجتهد", author: "ابن رشد", category: "الفقه", icon: "scale-balanced", color: "#FFD700", pdf: "https://archive.org/details/bedaya_mogtahed" },
+    { title: "الفقه على المذاهب الأربعة", author: "عبد الرحمن الجزيري", category: "الفقه", icon: "scale-balanced", color: "#F9A825", pdf: "https://archive.org/details/fiqh_4_mazaheb" },
+    { title: "الملخص الفقهي", author: "صالح الفوزان", category: "الفقه", icon: "scale-balanced", color: "#FFD700", pdf: "https://archive.org/details/20201109_20201109_1555" }
   ],
   "السيرة": [
-    { title: "الرحيق المختوم", author: "صفي الرحمن المباركفوري", category: "السيرة", icon: "mosque", pdf: "https://ia802807.us.archive.org/10/items/RaheeqMakhtoom/raheeq_makhtoom.pdf" },
-    { title: "زاد المعاد", author: "ابن قيم الجوزية", category: "السيرة", icon: "mosque", pdf: "https://ia800201.us.archive.org/15/items/Zad_Al-Maad/Zad.pdf" },
-    { title: "سيرة ابن هشام", author: "ابن هشام", category: "السيرة", icon: "mosque", pdf: "https://ia800207.us.archive.org/17/items/SerahIbnHisham/SerahHisham.pdf" }
+    { title: "الرحيق المختوم", author: "صفي الرحمن المباركفوري", category: "السيرة", icon: "mosque", color: "#7B68EE", pdf: "https://archive.org/details/20200223_20200223_1246" },
+    { title: "زاد المعاد", author: "ابن قيم الجوزية", category: "السيرة", icon: "mosque", color: "#7B68EE", pdf: "https://archive.org/details/zadmaad2015" },
+    { title: "سيرة ابن هشام", author: "ابن هشام", category: "السيرة", icon: "mosque", color: "#5C6BC0", pdf: "https://archive.org/details/ibhisham" },
+    { title: "فقه السيرة", author: "محمد الغزالي", category: "السيرة", icon: "mosque", color: "#7B68EE", pdf: "https://archive.org/details/fqhalsera" },
+    { title: "نور اليقين", author: "محمد الخضري", category: "السيرة", icon: "mosque", color: "#5C6BC0", pdf: "https://archive.org/details/20200227_20200227_1501" }
   ],
   "الرقائق": [
-    { title: "مدارج السالكين", author: "ابن قيم الجوزية", category: "الرقائق", icon: "heart", pdf: "https://ia800307.us.archive.org/28/items/Madarij_Salikeen/Madarij.pdf" },
-    { title: "إحياء علوم الدين", author: "أبو حامد الغزالي", category: "الرقائق", icon: "heart", pdf: "https://ia800201.us.archive.org/7/items/Ihya_Oloum_Eddin/Ihya.pdf" },
-    { title: "الداء والدواء", author: "ابن قيم الجوزية", category: "الرقائق", icon: "heart", pdf: "https://ia802802.us.archive.org/3/items/DaWaDawaZad/dawa2.pdf" }
+    { title: "مدارج السالكين", author: "ابن قيم الجوزية", category: "الرقائق", icon: "heart", color: "#FF6347", pdf: "https://archive.org/details/madarij-assalikin" },
+    { title: "إحياء علوم الدين", author: "أبو حامد الغزالي", category: "الرقائق", icon: "heart", color: "#FF6347", pdf: "https://archive.org/details/ihyaod" },
+    { title: "الداء والدواء", author: "ابن قيم الجوزية", category: "الرقائق", icon: "heart", color: "#D32F2F", pdf: "https://archive.org/details/aldaaaldwaa" },
+    { title: "لطائف المعارف", author: "ابن رجب الحنبلي", category: "الرقائق", icon: "heart", color: "#FF6347", pdf: "https://archive.org/details/20200408_20200408_0303" },
+    { title: "الوابل الصيب", author: "ابن قيم الجوزية", category: "الرقائق", icon: "heart", color: "#D32F2F", pdf: "https://archive.org/details/wabil" }
   ],
   "اللغة": [
-    { title: "ألفية ابن مالك", author: "ابن مالك", category: "اللغة", icon: "feather", pdf: "https://ia800306.us.archive.org/34/items/Alfiya_Ibn_Malik/Alfiya.pdf" },
-    { title: "مغني اللبيب", author: "ابن هشام الأنصاري", category: "اللغة", icon: "feather", pdf: "https://ia800208.us.archive.org/22/items/MughniLabib/Mughni.pdf" }
+    { title: "ألفية ابن مالك", author: "ابن مالك", category: "اللغة", icon: "feather", color: "#5FA8D3", pdf: "https://archive.org/details/20200401_20200401_0504" },
+    { title: "البلاغة الواضحة", author: "علي الجارم ومصطفى أمين", category: "البلاغة", icon: "feather", color: "#1976D2", pdf: "https://archive.org/details/20200622_20200622_0313" },
+    { title: "أسرار البلاغة", author: "عبد القاهر الجرجاني", category: "البلاغة", icon: "feather", color: "#5FA8D3", pdf: "https://archive.org/details/asrar_albalagha" },
+    { title: "قطر الندى وبل الصدى", author: "ابن هشام الأنصاري", category: "اللغة", icon: "feather", color: "#1976D2", pdf: "https://archive.org/details/qatr_nada" }
   ],
   "عام": [
-    { title: "رسالة في آداب البحث", author: "مجهول", category: "بحوث", icon: "layer-group", pdf: "https://ia800908.us.archive.org/24/items/Risalat_Adab_Bahth/Risala.pdf" },
-    { title: "فتاوى معاصرة", author: "مجموعة علماء", category: "فتاوى", icon: "layer-group", pdf: "https://ia802901.us.archive.org/25/items/FatawaQaradawi/Fatawa.pdf" }
+    { title: "آداب البحث والمناظرة", author: "الشنقيطي", category: "بحوث", icon: "layer-group", color: "#98D8C8", pdf: "https://archive.org/details/20200512_20200512_0357" },
+    { title: "كيف تكتب بحثاً علمياً", author: "أحمد شلبي", category: "بحوث", icon: "layer-group", color: "#26A69A", pdf: "https://archive.org/details/20191230_20191230_2102" },
+    { title: "مقدمة ابن خلدون", author: "ابن خلدون", category: "بحوث", icon: "layer-group", color: "#98D8C8", pdf: "https://archive.org/details/moqadimat_ibn_khaldun" }
   ]
 };
 
@@ -2306,61 +2325,65 @@ const progressObserver = new IntersectionObserver((entries) => {
 
 async function openLibCategory(categoryKey) {
   document.getElementById('library-categories').style.display = 'none';
+  document.getElementById('library-favorites-view').style.display = 'none';
   const booksView = document.getElementById('library-books-view');
   booksView.style.display = 'block';
-  
   const titleEl = document.getElementById('current-category-title');
   titleEl.innerHTML = `<i class="fas fa-book"></i> قسم: ${categoryKey}`;
-
   const container = document.getElementById('library-container');
   const loader = document.getElementById('library-loading');
-  
   container.innerHTML = '';
   loader.style.display = 'block';
-
-  // Simulate network fetch for books
-  setTimeout(() => {
-    loader.style.display = 'none';
-    const books = libraryItems[categoryKey] || [];
-    renderLibraryData(books);
-  }, 400);
+  setTimeout(() => { loader.style.display = 'none'; renderLibraryData(libraryItems[categoryKey] || [], container); }, 400);
 }
 
 function backToCategories() {
   document.getElementById('library-books-view').style.display = 'none';
+  document.getElementById('library-favorites-view').style.display = 'none';
   document.getElementById('library-categories').style.display = 'grid';
   document.getElementById('lib-search-input').value = '';
 }
 
-function renderLibraryData(items) {
-  const container = document.getElementById('library-container');
-  if (!container) return;
+function renderLibraryData(items, container) {
+  if (!container) container = document.getElementById('library-container');
   container.innerHTML = '';
-  
-  if(items.length === 0) {
-     container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-light); padding: 40px;">لا يوجد كتب في هذا القسم حالياً.</div>';
-     return;
-  }
-  
+  if (items.length === 0) { container.innerHTML = '<div class="lib-empty-state"><i class="fas fa-book-open"></i><p>لا يوجد كتب في هذا القسم حالياً.</p></div>'; return; }
+  const favs = getFavorites();
   items.forEach(item => {
-    container.innerHTML += `
-      <div class="lib-card" style="background: var(--bg-card); border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-        <div class="lib-card-badge" style="background:var(--primary); color:white">${item.category}</div>
-        <div style="height: 120px; background: linear-gradient(135deg, rgba(95,168,211,0.2), rgba(62,124,166,0.1)); display:flex; align-items:center; justify-content:center;">
-           <i class="fas fa-${item.icon} fa-4x" style="color:var(--secondary)"></i>
-        </div>
-        <div class="lib-card-info" style="padding: 15px;">
-          <h4 style="margin-bottom: 8px; color: var(--color-text-primary); font-size: 1.1rem;">${item.title}</h4>
-          <p class="lib-card-author" style="color: var(--text-light); font-size: 0.9rem;"><i class="fas fa-user-edit"></i> ${item.author}</p>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:auto; padding: 0 15px 15px 15px;">
-          <button class="lib-action" onclick="window.open('${item.pdf}', '_blank')" style="flex:1; border: 1px solid var(--primary); background: transparent; color: var(--primary); border-radius: 6px; cursor: pointer;">تصفح PDF <i class="fas fa-file-pdf"></i></button>
-          <button class="btn-primary" style="flex:1; font-size:0.8rem; padding:8px;" onclick="showToast('تم إرسال الاقتباس للمحرر', 'success')"><i class="fas fa-plus"></i> إدراج</button>
-        </div>
+    const isFav = favs.includes(item.title);
+    const bg = `linear-gradient(135deg, ${item.color || '#5FA8D3'}, ${item.color || '#5FA8D3'}99)`;
+    const t = item.title.replace(/'/g,"\\'");
+    container.innerHTML += `<div class="lib-card">
+      <div class="lib-card-cover" style="background:${bg}">
+        <div class="book-title">${item.title}</div>
+        <div class="book-author">${item.author}</div>
+        <i class="fas fa-${item.icon} book-icon"></i>
+        <span class="lib-card-badge">${item.category}</span>
+        <button class="lib-card-fav ${isFav?'active':''}" onclick="toggleFavorite('${t}',this)"><i class="fas fa-heart"></i></button>
       </div>
-    `;
+      <div class="lib-card-info">
+        <h4>${item.title}</h4>
+        <p class="lib-card-author"><i class="fas fa-user-edit"></i> ${item.author}</p>
+      </div>
+      <div class="lib-card-actions">
+        <button class="lib-action-btn lib-action-read" onclick="window.open('${item.pdf}','_blank')"><i class="fas fa-book-reader"></i> قراءة</button>
+        <button class="lib-action-btn lib-action-insert" onclick="window.open('${item.pdf}','_blank')"><i class="fas fa-file-pdf"></i> تحميل</button>
+      </div>
+    </div>`;
   });
 }
+
+function getFavorites() { try { return JSON.parse(localStorage.getItem('khotba_favs') || '[]'); } catch(e) { return []; } }
+function saveFavorites(favs) { localStorage.setItem('khotba_favs', JSON.stringify(favs)); updateFavCount(); }
+function toggleFavorite(title, btn) { let favs = getFavorites(); if (favs.includes(title)) { favs = favs.filter(f => f !== title); btn.classList.remove('active'); showToast('تم الإزالة من المفضلة', 'info'); } else { favs.push(title); btn.classList.add('active'); showToast('تم الإضافة للمفضلة ❤️', 'success'); } saveFavorites(favs); }
+function updateFavCount() { const el = document.getElementById('lib-total-favs'); if (el) el.textContent = getFavorites().length; }
+function showFavorites() { const favs = getFavorites(); const all = Object.values(libraryItems).flat(); const favBooks = all.filter(b => favs.includes(b.title)); const c = document.getElementById('favorites-container'); renderLibraryData(favBooks, c); if (favBooks.length === 0) c.innerHTML = '<div class="lib-empty-state"><i class="fas fa-heart"></i><p>لم تضف أي كتب للمفضلة بعد.</p></div>'; }
+function switchLibTab(tab, btn) { document.querySelectorAll('.lib-tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); document.getElementById('library-categories').style.display = 'none'; document.getElementById('library-books-view').style.display = 'none'; document.getElementById('library-favorites-view').style.display = 'none'; if (tab === 'all') { document.getElementById('library-categories').style.display = 'grid'; } else { document.getElementById('library-favorites-view').style.display = 'block'; showFavorites(); } }
+function openPdfReader(url, title) { document.getElementById('pdf-reader-title').textContent = title; document.getElementById('pdf-reader-iframe').src = url; document.getElementById('pdf-download-link').href = url; document.getElementById('pdf-reader-modal').classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closePdfReader() { document.getElementById('pdf-reader-modal').classList.remove('active'); document.getElementById('pdf-reader-iframe').src = ''; document.body.style.overflow = ''; }
+function filterLibraryResults() { const q = document.getElementById('lib-search-input').value.toLowerCase().trim(); if (!q) { backToCategories(); return; } const all = Object.values(libraryItems).flat(); const f = all.filter(i => i.title.toLowerCase().includes(q) || i.author.toLowerCase().includes(q) || i.category.toLowerCase().includes(q)); document.getElementById('library-categories').style.display = 'none'; document.getElementById('library-favorites-view').style.display = 'none'; document.getElementById('library-books-view').style.display = 'block'; document.getElementById('current-category-title').innerHTML = `<i class="fas fa-search"></i> نتائج البحث (${f.length})`; renderLibraryData(f); }
+function initLibraryStats() { const el = document.getElementById('lib-total-books'); if (el) el.textContent = Object.values(libraryItems).flat().length; updateFavCount(); Object.keys(libraryItems).forEach(k => { const c = document.getElementById('cat-count-' + k); if (c) c.textContent = libraryItems[k].length; }); }
+document.addEventListener('DOMContentLoaded', initLibraryStats);
 
 // ============================================
 // THEME MANAGEMENT (DARK MODE)
@@ -2423,11 +2446,7 @@ window.sendToEditor = function(type, text) {
   }
 }
 
-function filterLibraryResults() {
-  const query = document.getElementById('lib-search-input').value.toLowerCase();
-  const filtered = libraryData.filter(item => item.title.toLowerCase().includes(query) || item.content.toLowerCase().includes(query));
-  renderLibraryData(filtered);
-}
+
 
 // ============================================
 // DEMO MODAL

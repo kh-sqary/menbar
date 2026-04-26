@@ -31,7 +31,7 @@
     <!-- NAVBAR -->
     <nav class="navbar glass-nav">
       <div class="nav-container">
-        <div class="nav-logo">
+        <div class="nav-logo" style="cursor:pointer;" onclick="showPage('landing-page'); window.scrollTo({top:0, behavior:'smooth'});">
           <img src="images/logo light.png" alt="Logo" class="project-logo logo-light">
           <img src="images/logo dark.png" alt="Logo" class="project-logo logo-dark">
         </div>
@@ -290,7 +290,7 @@
       <div class="footer-content"
         style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px;">
         <div class="footer-brand">
-          <div class="nav-logo" style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+          <div class="nav-logo" style="display:flex; align-items:center; gap:10px; margin-bottom:20px; cursor:pointer;" onclick="showPage('landing-page'); window.scrollTo({top:0, behavior:'smooth'});">
             <img src="images/logo light.png" alt="Logo" class="project-logo logo-light">
             <img src="images/logo dark.png" alt="Logo" class="project-logo logo-dark">
           </div>
@@ -1080,73 +1080,124 @@
           <p>أرشيف متكامل يحاكي تصنيفات مكتبة إسلام ويب المعتمدة للكتب والرسائل العلمية</p>
         </div>
 
-        <div class="search-box library-search-box" style="width: 100%; max-width: 600px; margin: 0 auto 30px auto;">
+        <!-- Library Stats Bar -->
+        <div class="library-stats-bar">
+          <div class="lib-stat"><i class="fas fa-book"></i><span id="lib-total-books">0</span> كتاب</div>
+          <div class="lib-stat"><i class="fas fa-layer-group"></i><span id="lib-total-cats">9</span> أقسام</div>
+          <div class="lib-stat"><i class="fas fa-heart"></i><span id="lib-total-favs">0</span> مفضلة</div>
+        </div>
+
+        <!-- Tabs: All / Favorites -->
+        <div class="library-tabs">
+          <button class="lib-tab active" onclick="switchLibTab('all', this)"><i class="fas fa-th-large"></i> جميع الأقسام</button>
+          <button class="lib-tab" onclick="switchLibTab('favorites', this)"><i class="fas fa-heart"></i> المفضلة</button>
+        </div>
+
+        <div class="search-box library-search-box">
           <i class="fas fa-search"></i>
           <input type="text" id="lib-search-input" placeholder="ابحث عن كتاب، مؤلف، أو تصنيف..." oninput="filterLibraryResults()" />
         </div>
 
-        <!-- Categories / Divisions simulating Islamweb -->
-        <div class="library-categories" id="library-categories" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 40px;">
-          <div class="lib-category-card" onclick="openLibCategory('العقيدة')" style="cursor:pointer; background: var(--bg-card); padding: 30px 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border); transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <i class="fas fa-cube fa-3x" style="color: #66BB6A; margin-bottom: 15px;"></i>
-            <h3 style="color: var(--color-text-primary);">العقيدة</h3>
-            <p style="font-size: 0.85rem; color: var(--text-light);">التوحيد، الأسماء والصفات، الملل والنحل</p>
+        <!-- Categories Grid -->
+        <div class="library-categories" id="library-categories">
+          <div class="lib-category-card" onclick="openLibCategory('الخطابة')">
+            <div class="lib-cat-icon" style="background: linear-gradient(135deg, #5FA8D3, #3E7CA6);"><i class="fas fa-microphone-alt"></i></div>
+            <h3>الخطابة والدعوة</h3>
+            <p>فن الإلقاء، إعداد الخطبة، أساليب الدعوة</p>
+            <span class="lib-cat-count" id="cat-count-الخطابة">0</span>
           </div>
-          <div class="lib-category-card" onclick="openLibCategory('التفسير')" style="cursor:pointer; background: var(--bg-card); padding: 30px 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border); transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <i class="fas fa-book-open fa-3x" style="color: #FF8C69; margin-bottom: 15px;"></i>
-            <h3 style="color: var(--color-text-primary);">التفسير</h3>
-            <p style="font-size: 0.85rem; color: var(--text-light);">تفسير القرآن الكريم، وعلوم القرآن</p>
+          <div class="lib-category-card" onclick="openLibCategory('العقيدة')">
+            <div class="lib-cat-icon" style="background: linear-gradient(135deg, #66BB6A, #43A047);"><i class="fas fa-cube"></i></div>
+            <h3>العقيدة</h3>
+            <p>التوحيد، الأسماء والصفات، الملل والنحل</p>
+            <span class="lib-cat-count" id="cat-count-العقيدة">0</span>
           </div>
-          <div class="lib-category-card" onclick="openLibCategory('الحديث')" style="cursor:pointer; background: var(--bg-card); padding: 30px 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border); transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <i class="fas fa-comment-dots fa-3x" style="color: #48D1CC; margin-bottom: 15px;"></i>
-            <h3 style="color: var(--color-text-primary);">الحديث الشريف</h3>
-            <p style="font-size: 0.85rem; color: var(--text-light);">الصحاح، السنن، المسانيد، والمصطلح</p>
+          <div class="lib-category-card" onclick="openLibCategory('التفسير')">
+            <div class="lib-cat-icon" style="background: linear-gradient(135deg, #FF8C69, #E65100);"><i class="fas fa-book-open"></i></div>
+            <h3>التفسير</h3>
+            <p>تفسير القرآن الكريم، وعلوم القرآن</p>
+            <span class="lib-cat-count" id="cat-count-التفسير">0</span>
           </div>
-          <div class="lib-category-card" onclick="openLibCategory('الفقه')" style="cursor:pointer; background: var(--bg-card); padding: 30px 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border); transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <i class="fas fa-scale-balanced fa-3x" style="color: #FFD700; margin-bottom: 15px;"></i>
-            <h3 style="color: var(--color-text-primary);">الفقه وأصوله</h3>
-            <p style="font-size: 0.85rem; color: var(--text-light);">العبادات، المعاملات، والمذاهب الأربعة</p>
+          <div class="lib-category-card" onclick="openLibCategory('الحديث')">
+            <div class="lib-cat-icon" style="background: linear-gradient(135deg, #48D1CC, #00897B);"><i class="fas fa-comment-dots"></i></div>
+            <h3>الحديث الشريف</h3>
+            <p>الصحاح، السنن، المسانيد، والمصطلح</p>
+            <span class="lib-cat-count" id="cat-count-الحديث">0</span>
           </div>
-          <div class="lib-category-card" onclick="openLibCategory('السيرة')" style="cursor:pointer; background: var(--bg-card); padding: 30px 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border); transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <i class="fas fa-mosque fa-3x" style="color: #7B68EE; margin-bottom: 15px;"></i>
-            <h3 style="color: var(--color-text-primary);">السيرة والتاريخ</h3>
-            <p style="font-size: 0.85rem; color: var(--text-light);">السيرة النبوية، التراجم، والتاريخ الإسلامي</p>
+          <div class="lib-category-card" onclick="openLibCategory('الفقه')">
+            <div class="lib-cat-icon" style="background: linear-gradient(135deg, #FFD700, #F9A825);"><i class="fas fa-scale-balanced"></i></div>
+            <h3>الفقه وأصوله</h3>
+            <p>العبادات، المعاملات، والمذاهب الأربعة</p>
+            <span class="lib-cat-count" id="cat-count-الفقه">0</span>
           </div>
-          <div class="lib-category-card" onclick="openLibCategory('الرقائق')" style="cursor:pointer; background: var(--bg-card); padding: 30px 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border); transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <i class="fas fa-heart fa-3x" style="color: #FF6347; margin-bottom: 15px;"></i>
-            <h3 style="color: var(--color-text-primary);">الرقائق والأخلاق</h3>
-            <p style="font-size: 0.85rem; color: var(--text-light);">الزهد، المواعظ، السلوك والآداب الشرعية</p>
+          <div class="lib-category-card" onclick="openLibCategory('السيرة')">
+            <div class="lib-cat-icon" style="background: linear-gradient(135deg, #7B68EE, #5C6BC0);"><i class="fas fa-mosque"></i></div>
+            <h3>السيرة والتاريخ</h3>
+            <p>السيرة النبوية، التراجم، والتاريخ الإسلامي</p>
+            <span class="lib-cat-count" id="cat-count-السيرة">0</span>
           </div>
-          <div class="lib-category-card" onclick="openLibCategory('اللغة')" style="cursor:pointer; background: var(--bg-card); padding: 30px 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border); transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <i class="fas fa-feather fa-3x" style="color: #5FA8D3; margin-bottom: 15px;"></i>
-            <h3 style="color: var(--color-text-primary);">اللغة العربية</h3>
-            <p style="font-size: 0.85rem; color: var(--text-light);">النحو، الصرف، البلاغة، والأدب</p>
+          <div class="lib-category-card" onclick="openLibCategory('الرقائق')">
+            <div class="lib-cat-icon" style="background: linear-gradient(135deg, #FF6347, #D32F2F);"><i class="fas fa-heart"></i></div>
+            <h3>الرقائق والأخلاق</h3>
+            <p>الزهد، المواعظ، السلوك والآداب الشرعية</p>
+            <span class="lib-cat-count" id="cat-count-الرقائق">0</span>
           </div>
-          <div class="lib-category-card" onclick="openLibCategory('عام')" style="cursor:pointer; background: var(--bg-card); padding: 30px 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border); transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <i class="fas fa-layer-group fa-3x" style="color: #98D8C8; margin-bottom: 15px;"></i>
-            <h3 style="color: var(--color-text-primary);">بحوث ورسائل</h3>
-            <p style="font-size: 0.85rem; color: var(--text-light);">رسائل علمية، مجلات، وموسوعات عامة</p>
+          <div class="lib-category-card" onclick="openLibCategory('اللغة')">
+            <div class="lib-cat-icon" style="background: linear-gradient(135deg, #5FA8D3, #1976D2);"><i class="fas fa-feather"></i></div>
+            <h3>اللغة العربية</h3>
+            <p>النحو، الصرف، البلاغة، والأدب</p>
+            <span class="lib-cat-count" id="cat-count-اللغة">0</span>
           </div>
+          <div class="lib-category-card" onclick="openLibCategory('عام')">
+            <div class="lib-cat-icon" style="background: linear-gradient(135deg, #98D8C8, #26A69A);"><i class="fas fa-layer-group"></i></div>
+            <h3>بحوث ورسائل</h3>
+            <p>رسائل علمية، مجلات، وموسوعات عامة</p>
+            <span class="lib-cat-count" id="cat-count-عام">0</span>
+          </div>
+        </div>
+
+        <!-- Favorites View -->
+        <div id="library-favorites-view" style="display:none;">
+          <div class="lib-books-header">
+            <h3><i class="fas fa-heart" style="color:#FF6347"></i> كتبك المفضلة</h3>
+            <button class="btn-secondary lib-back-btn" onclick="switchLibTab('all', document.querySelector('.lib-tab'))">
+              <i class="fas fa-arrow-right"></i> العودة للأقسام
+            </button>
+          </div>
+          <div class="library-grid" id="favorites-container"></div>
         </div>
 
         <!-- Books View Area -->
         <div id="library-books-view" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3 id="current-category-title" style="color:var(--primary); font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
-              <i class="fas fa-book"></i> جميع الكتب
-            </h3>
-            <button class="btn-secondary" onclick="backToCategories()" style="border-radius: 8px; padding: 10px 20px;">
+          <div class="lib-books-header">
+            <h3 id="current-category-title"><i class="fas fa-book"></i> جميع الكتب</h3>
+            <button class="btn-secondary lib-back-btn" onclick="backToCategories()">
               <i class="fas fa-arrow-right"></i> العودة للأقسام
             </button>
           </div>
-          <div id="library-loading" style="display:none; text-align:center; padding: 3rem;">
-            <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary)"></i> جاري جلب الكتب...
+          <div id="library-loading" class="lib-loading">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary)"></i>
+            <p>جاري جلب الكتب...</p>
           </div>
-          <div class="library-grid" id="library-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:20px;">
-            <!-- Populated by JS -->
-          </div>
+          <div class="library-grid" id="library-container"></div>
         </div>
       </section>
+
+      <!-- PDF Reader Modal -->
+      <div class="pdf-reader-modal" id="pdf-reader-modal">
+        <div class="pdf-reader-content">
+          <div class="pdf-reader-header">
+            <h3 id="pdf-reader-title">قراءة الكتاب</h3>
+            <div class="pdf-reader-actions">
+              <a id="pdf-download-link" href="#" target="_blank" class="btn-secondary" style="font-size:0.85rem; padding: 8px 16px; border-radius: 8px;">
+                <i class="fas fa-external-link-alt"></i> فتح في تبويب جديد
+              </a>
+              <button onclick="closePdfReader()" class="btn-icon" style="font-size:1.2rem; color: var(--color-text-primary);"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+          <iframe id="pdf-reader-iframe" src="" style="width:100%; height:calc(100% - 60px); border:none; border-radius: 0 0 12px 12px;"></iframe>
+        </div>
+      </div>
 
     </div>
   </div>
